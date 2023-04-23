@@ -1,7 +1,7 @@
 import React from "react";
 import Section from "./Section";
 import Container from "react-bootstrap/Container";
-import { Link } from "./../util/router.js";
+// import { Link } from "./../util/router.js";
 import "./Footer.scss";
 
 function Footer(props) {
@@ -17,9 +17,9 @@ function Footer(props) {
       <Container>
         <div className="FooterComponent__inner">
           <div className="brand left">
-            <Link to="/">
+            {/* <Link to="/">
               <img src={props.logo} alt="Logo" />
-            </Link>
+            </Link> */}
           </div>
           <div className="links right">
             <a
@@ -36,7 +36,7 @@ function Footer(props) {
             >
               Blog
             </a>
-            <Link to="/privacy">Privacy</Link>
+            {/* <Link to="/privacy">Privacy</Link> */}
           </div>
           <div
             style={{

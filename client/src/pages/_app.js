@@ -14,32 +14,32 @@ function App(props) {
     <Router>
       <Helmet>
         <meta charSet="utf-8" />
-        <title>BroRender - Free Distributed Render by BroCorp</title>
-        <link rel="canonical" href="https://brorender.site" />
-        <meta name="author" content="BroCorp" />
+        <title>Nutter Tools</title>
+        <link rel="canonical" href="https://nutter.tools" />
+        <meta name="author" content="ogmilady" />
         <meta
           name="keywords"
-          content="Blender, render, distributed, free, online, distributed"
+          content="matrix, milady, distributed, free, online, face, swap"
         />
         <meta
           name="description"
-          content="Render your blender projects in realtime with our distributed cluster."
+          content="Swap faces with milady, remilio, radbro!"
         />
         <meta
           name="og:description"
-          content="Render your blender projects in realtime with our distributed cluster."
+          content="Swap faces with milady, remilio, radbro!"
         />
         <meta
           name="og:title"
-          content="BroRender - Free Distributed Render by BroCorp"
+          content="Nutter Tools - Swap faces with milady, remilio, radbro!"
         />
-        <meta name="og:image" content="https://brorender.site/img/logo.png" />
+        {/* <meta name="og:image" content="https://brorender.site/img/logo.png" /> */}
       </Helmet>
       <Switch>
         <Route exact path="/" component={IndexPage} />
-        <Route path="/brorender-site/" component={IndexPage} />
-        <Route exact path="/privacy" component={PrivacyPage} />
-        <Route path="/dash" component={DashPage} />
+        {/* <Route path="/brorender-site/" component={IndexPage} /> */}
+        {/* <Route exact path="/privacy" component={PrivacyPage} /> */}
+        {/* <Route path="/dash" component={DashPage} /> */}
         <Route component={NotFoundPage} />
       </Switch>
     </Router>
