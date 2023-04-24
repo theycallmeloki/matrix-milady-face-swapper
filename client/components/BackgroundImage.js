@@ -1,5 +1,5 @@
 import React from "react";
-import "./BackgroundImage.scss";
+// import "./BackgroundImage.scss";
 
 function BackgroundImage(props) {
   return (

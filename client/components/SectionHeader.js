@@ -1,5 +1,5 @@
 import React from "react";
-import "./SectionHeader.scss";
+// import "./SectionHeader.scss";
 
 function SectionHeader(props) {
   // Render nothing if no title or subtitle

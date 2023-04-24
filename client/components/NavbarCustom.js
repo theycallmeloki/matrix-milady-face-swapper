@@ -6,10 +6,10 @@ import Nav from "react-bootstrap/Nav";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import Dropdown from "react-bootstrap/Dropdown";
 import Button from "react-bootstrap/Button";
-import { useAuth } from "./../util/auth.js";
+// import { useAuth } from "./../util/auth.js";
 
 function NavbarCustom(props) {
-  const auth = useAuth();
+//   const auth = useAuth();
 
   return (
     <Navbar bg={props.bg} variant={props.variant} expand={props.expand}>

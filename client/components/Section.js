@@ -1,6 +1,6 @@
 import React from "react";
 import BackgroundImage from "./BackgroundImage";
-import "./Section.scss";
+// import "./Section.scss";
 
 function Section(props) {
   const {
