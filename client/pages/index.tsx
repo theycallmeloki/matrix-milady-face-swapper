@@ -201,7 +201,7 @@ const Home: NextPage = () => {
 
             <footer className={styles.footer}>
                 <a
-                    href="https://rainbow.me"
+                    href="https://ogmilady.eth.link"
                     rel="noopener noreferrer"
                     target="_blank"
                 >
