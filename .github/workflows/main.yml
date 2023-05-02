@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  ssh_and_install_edith:
+  install_edith:
     runs-on: ubuntu-latest
 
     steps:
