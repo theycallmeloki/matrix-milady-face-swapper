@@ -23,6 +23,6 @@ jobs:
           curl -sSL https://github.com/theycallmeloki/edith-cli/raw/main/edith -o edith
           chmod +x edith
           sudo apt-get update
-          sudo apt-get install python3-pip
+          sudo apt-get install -y python3-pip
           sudo python3 -m pip install ansible
           sudo ./edith install
