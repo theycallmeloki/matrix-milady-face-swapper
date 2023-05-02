@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  install-edith:
+  install_edith:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,5 +24,5 @@ jobs:
           chmod +x edith
           sudo apt-get update
           sudo apt-get install -y python3-pip
-          sudo python3 -m pip install ansible
+          sudo python3 -m pip install ansible kubernetes
           sudo ./edith install
