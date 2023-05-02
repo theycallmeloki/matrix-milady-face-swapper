@@ -12,7 +12,7 @@ import React, {
   import NavbarCustom from "../components/NavbarCustom";
   import HeroSection from "../components/HeroSection";
   import Footer from "../components/Footer";
-  import { Dropzone } from "react-dropzone";
+  import Dropzone from "dropzone";
   import Image from "next/image";
   // import "dropzone/dist/min/dropzone.min.css";
   
@@ -93,7 +93,7 @@ import React, {
           }
   
           const formData = new FormData();
-          formData.append("file", `${file.upload.filename}`);
+          formData.append("file", file);
           formData.append("selectedMilady", selectedMiladyUrl);
   
           try {
