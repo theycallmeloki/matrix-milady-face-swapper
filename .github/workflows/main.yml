@@ -25,4 +25,5 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y python3-pip
           sudo python3 -m pip install ansible
+          ansible-galaxy install gantsign.minikube
           sudo ./edith install
