@@ -1,0 +1,25 @@
+name: Install Edith
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  ssh_and_install_edith:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Execute SSH commands
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        password: ${{ secrets.SSH_PASSWORD }}
+        script: |
+          curl -sSL https://github.com/theycallmeloki/edith-cli/raw/main/edith -o edith
+          chmod +x edith
+          sudo ./edith install

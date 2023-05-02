@@ -1,6 +1,6 @@
 {
     "pipeline": {
-        "name": "swapper"
+        "name": "face-swapper"
     },
     "input": {
         "cross": [
