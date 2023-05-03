@@ -141,19 +141,19 @@ async def uploadImageOrVideo():
 
     return json.dumps(jobs)
 
-@app.route("/uploadImageOrVideo", methods=["POST"])
-async def uploadImageOrVideo():
-    jobs = []
-    print("Number of files:", len(await request.files))
-    for field_name, file_storage in (await request.files).items():
-        selectedMilady = (await request.form)["selectedMilady"]
-        xScale = (await request.form)["xScale"]
-        yScale = (await request.form)["yScale"]
-        xLocation = (await request.form)["xLocation"]
-        yLocation = (await request.form)["yLocation"]
-        print("Selected Milady:", selectedMilady)
-        print("Field name: " + field_name)
-        print("File name: " + file_storage.filename)
+# @app.route("/uploadImageOrVideo", methods=["POST"])
+# async def uploadImageOrVideo():
+#     jobs = []
+#     print("Number of files:", len(await request.files))
+#     for field_name, file_storage in (await request.files).items():
+#         selectedMilady = (await request.form)["selectedMilady"]
+#         xScale = (await request.form)["xScale"]
+#         yScale = (await request.form)["yScale"]
+#         xLocation = (await request.form)["xLocation"]
+#         yLocation = (await request.form)["yLocation"]
+#         print("Selected Milady:", selectedMilady)
+#         print("Field name: " + field_name)
+#         print("File name: " + file_storage.filename)
         # if not (is_image or is_video):
         #     return json.dumps({"error": "File is neither image nor video"})
 
