@@ -63,7 +63,7 @@ import React, {
       fetchData();
     }, []);
   
-    console.log(miladys);
+    // console.log(miladys);
   
     const [selectedIndex, setSelectedIndex] = useState(null);
   
@@ -100,7 +100,7 @@ import React, {
           console.log("File dropped:", file);
           console.log("selectedIndex:", selectedIndex);
           console.log("miladys:", miladys);
-  
+        
           let selectedMiladyUrl = "";
           if (selectedIndex === null) {
             alert("Please select a milady before uploading a file.");
@@ -108,7 +108,7 @@ import React, {
           } else {
             selectedMiladyUrl = miladys[selectedIndex].url;
           }
-  
+        
           const formData = new FormData();
           formData.append("file", file);
           formData.append("selectedMilady", selectedMiladyUrl);
@@ -118,17 +118,31 @@ import React, {
           formData.append("yLocation", "-1")
           
           try {
+            setIsWaitingForDownload(true);
             const response = await fetch(
-              "http://localhost:5000/uploadImageOrVideo",
+              "http://192.168.0.117:5000/uploadImageOrVideo",
               {
                 method: "POST",
                 body: formData,
               }
             );
-            const data = await response.json();
-            console.log("File uploaded successfully:", data);
+            console.log("Response:", response)
+            if (response.ok) {
+              const blob = await response.blob();
+              console.log(blob)
+              const url = URL.createObjectURL(blob);
+              console.log('Generated URL:', url);
+              const fileName = response.headers.get('Content-Disposition')?.split('filename=')[1] || "download.jpg";
+              setUserDownloadLink(url);
+              setUserDownloadFilename(fileName);
+              setIsWaitingForDownload(false);
+            } else {
+              console.error("Error uploading file:", response.statusText);
+              setIsWaitingForDownload(false);
+            }
           } catch (error) {
             console.error("Error uploading file:", error);
+            setIsWaitingForDownload(false);
           }
         };
   
@@ -305,12 +319,12 @@ import React, {
                   padding: "20px",
                 }}
               >
-                {downloadLink !== "" && (
+                {userDownloadLink && (
                   <div style={{ textAlign: "center" }}>
                     {isWaitingForDownload === true ? (
                       "Your download will appear here when ready."
                     ) : (
-                      <a href={userDownloadLink} download={userDownloadFilename}>
+                      <a href={`/download/${userDownloadLink}`} download={userDownloadFilename}>
                         <button type="button">Download</button>
                       </a>
                     )}

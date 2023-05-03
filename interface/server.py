@@ -1,5 +1,5 @@
 import requests
-from quart import Quart, request
+from quart import Quart, request, send_file, Response
 import json
 import copy
 from datetime import datetime
@@ -16,11 +16,19 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import json
 import mimetypes
+import threading
+
 
 
 app = Quart(__name__)
 app = cors(app, allow_origin="*")
 app.config["MAX_CONTENT_LENGTH"] = 100 * 1000 * 1000
+
+
+# Add this line to create a dictionary to store events for each job
+job_events = {}
+job_files = {}
+
 
 pachd_address = "localhost:30650"
 client = python_pachyderm.Client.new_from_pachd_address(pachd_address)
@@ -66,6 +74,20 @@ async def get_sheet_data_json():
     sheet_data = get_sheet_data(SPREADSHEET_ID, RANGE_NAME)
     json_data = sheet_data_to_json(sheet_data)
     return json.dumps(json_data)
+
+@app.route('/download/<job_id>', methods=['GET'])
+async def download_processed_file(job_id):
+    file_path = job_files.get(job_id)
+    if file_path is None:
+        return "File not found", 404
+    if not os.path.exists(file_path):
+        return "File not found", 404
+
+    # Get the file name and extension
+    file_name = os.path.basename(file_path)
+
+    # Send the file as a response with the Content-Disposition header
+    return await send_file(file_path, attachment_filename=file_name, as_attachment=True)
 
 @app.route("/uploadImageOrVideo", methods=["POST"])
 async def uploadImageOrVideo():
@@ -129,7 +151,7 @@ async def uploadImageOrVideo():
             client.create_pipeline(
                 processed,
                 transform=python_pachyderm.Transform(
-                    cmd=["python3", "/face_swapper.py", f"{imgswap}", f"{selectedMilady}", "http://192.168.0.221:5000/uploadSwappedImage", f"{xScale}", f"{yScale}", f"{xLocation}", f"{yLocation}"],
+                    cmd=["python3", "/face_swapper.py", f"{imgswap}", f"{selectedMilady}", "http://192.168.0.117:5000/uploadSwappedImage", f"{xScale}", f"{yScale}", f"{xLocation}", f"{yLocation}"],
                     image="laneone/edith-images:6f0847f281a04886ae0610ceb21cf4ed",
                     image_pull_secrets=["laneonekey"],
                 ),
@@ -137,6 +159,17 @@ async def uploadImageOrVideo():
                     pfs=python_pachyderm.PFSInput(glob="/*", repo=imgswap)
                 ),
             )
+            # Create and store an event for this job
+            job_events[new_job_id] = asyncio.Event()
+
+            # Store the file path for the processed image	
+            job_files[new_job_id] = f"/tmp/swappedimage/{new_job_id}.jpg"
+
+    # Wait for all events to be set
+    await asyncio.gather(*(job_events[job].wait() for job in jobs))
+    # Clear events from the dictionary
+    for job in jobs:
+        del job_events[job]
 
 
     return json.dumps(jobs)
@@ -148,57 +181,34 @@ async def uploadSwappedImage():
     for field_name, file_storage in (await request.files).items():
         print("Field name: " + field_name)
         print("File name: " + file_storage.filename)
+        prejobid = file_storage.filename.split(".")[0]
+        actual_file = file_storage.read()
+        print("Size: " + str(len(actual_file)))
+        # create a directory to store the blend files
+        if not os.path.exists("/tmp/swappedimage"):
+            os.makedirs("/tmp/swappedimage")
+        
+        with open("/tmp/swappedimage/" + prejobid + ".jpg", "wb") as reader:
+            reader.write(actual_file)
+        
+        imgswap = prejobid + "-imgswap"
+        processed = prejobid + "-img-prcsd"
+        client.delete_repo(processed)
+        client.delete_pipeline(processed)
+
+        client.delete_repo(imgswap)
+        print("Cleaned up job " + prejobid)
+
+    # Set the event for this job, signaling that it's complete
+    job_events[prejobid].set()
 
     return "Ack! milady 🫡"
         
+async def display_job_files():
+    while True:
+        for job_id, file_path in job_files.items():
+            if os.path.exists(file_path):
+                print(f"File path for job {job_id}: {file_path}")
+        await asyncio.sleep(10)
 
-# @app.route("/uploadZip", methods=["POST"])
-# async def uploadZip():
-#     for name, file in (await request.files).items():
-#         print("Filename: " + name)
-#         t = name.split(".")
-#         t.pop()
-#         prejobid = "".join(t)
-#         prejobfilename = "".join(t) + ".zip"
-#         actual_file = file.read()
-#         print("Size: " + str(len(actual_file)))
-#         with open("/var/www/html/zips/" + prejobfilename, "wb") as reader:
-#             reader.write(actual_file)
-
-#         blends = prejobid + "-blends"
-#         splitter = prejobid + "-splitter"
-#         renderer = prejobid + "-renderer"
-#         merger = prejobid + "-merger"
-#         watermarker = prejobid + "-watermarker"
-#         unenczipper = prejobid + "-unenczipper"
-#         enczipper = prejobid + "-enczipper"
-#         megazipper = prejobid + "-megazipper"
-
-#         client.delete_repo(megazipper)
-#         client.delete_pipeline(megazipper)
-
-#         client.delete_repo(unenczipper)
-#         client.delete_pipeline(unenczipper)
-
-#         client.delete_repo(watermarker)
-#         client.delete_pipeline(watermarker)
-
-#         client.delete_repo(enczipper)
-#         client.delete_pipeline(enczipper)
-
-#         client.delete_repo(merger)
-#         client.delete_pipeline(merger)
-
-#         client.delete_repo(renderer)
-#         client.delete_pipeline(renderer)
-
-#         client.delete_repo(splitter)
-#         client.delete_pipeline(splitter)
-
-#         client.delete_repo(blends)
-#         print("Cleaned up job " + prejobid)
-
-#     return "Ack!"
-
-
-app.run(host="0.0.0.0", ssl_context=("adhoc"))
+app.run(host="0.0.0.0", ssl_context=("adhoc"), background_tasks=[display_job_files()])
