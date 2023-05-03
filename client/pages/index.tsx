@@ -95,7 +95,11 @@ import React, {
           const formData = new FormData();
           formData.append("file", file);
           formData.append("selectedMilady", selectedMiladyUrl);
-  
+          formData.append("xScale", "3")
+          formData.append("yScale", "3")
+          formData.append("xLocation", "-1")
+          formData.append("yLocation", "-1")
+          
           try {
             const response = await fetch(
               "http://localhost:5000/uploadImageOrVideo",

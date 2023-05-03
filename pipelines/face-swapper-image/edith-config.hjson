@@ -1,0 +1,32 @@
+{
+  "containerName": "face-swapper-image",
+  "prePushHook": {
+    "cmdList": [
+        "pachctl create repo nonmilady || pachctl delete repo nonmilady",
+        // "pachctl create repo milady || pachctl delete repo milady",
+        "pachctl put file nonmilady@master:nonmilady.jpg -f https://i.imgur.com/eQWSPly.jpg"
+    ]
+  },
+  "postPushHook": {
+    // "cmdList": ["pachctl create pipeline -f /tmp/thispipeline.json"],
+    "pipeline": {
+        // "pipeline": {
+        //     "name": "converter"
+        // },
+        // "description": "A pipeline that encodes videos",
+        "input": {
+            "pfs": {
+              "glob": "/*",
+              "repo": "nonmilady"
+            }
+        },
+        "transform": {
+            // "image_pull_secrets": [
+            //     "laneonekey"
+            // ],
+            "cmd": ["python3", "/face_swapper.py", "nonmilady", "https://i.imgur.com/VFVpAP8.png", "3", "3", "0", "0"],
+            // "image": ""
+        }
+    }
+  }
+}

@@ -41,7 +41,7 @@ RUN cd ~ && \
 
 RUN pip3 install face_recognition_models Click>=6.0 dlib>=19.3.0 numpy Pillow scipy>=0.17.0 --verbose
 
-RUN pip3 install opencv-python-headless imutils --verbose
+RUN pip3 install opencv-python-headless imutils requests --verbose
 
 ADD face_swapper.py /face_swapper.py
 

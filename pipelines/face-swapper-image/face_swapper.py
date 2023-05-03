@@ -75,9 +75,10 @@ import imutils
 import numpy as np
 import shutil
 import uuid
+import requests
 
 pfs_source_images = f"/pfs/{sys.argv[1]}"
-pfs_source_overlay = f"/pfs/{sys.argv[2]}"
+url_source_overlay = f"{sys.argv[2]}"
 horizontal_scale = float(sys.argv[3])
 vertical_scale = float(sys.argv[4])
 xLocation = int(sys.argv[5])
@@ -102,14 +103,18 @@ def replace_faces(image, overlay_image, rects, horizontal_scale, vertical_scale,
         x, y, w, h = rect.left(), rect.top(), rect.width(), rect.height()
         w = int(w * horizontal_scale)
         h = int(h * vertical_scale)
-        x += xLocation
-        y += yLocation
+        x += xLocation - w // 2  # Subtract half the width to center the overlay image horizontally
+        y += yLocation - h // 2  # Subtract half the height to center the overlay image vertically
         resized_overlay = cv2.resize(overlay_image, (w, h), interpolation=cv2.INTER_AREA)
         for i in range(h):
             for j in range(w):
                 if resized_overlay[i, j, 3] != 0:
-                    image[y+i, x+j] = resized_overlay[i, j, 0:3]
+                    y_index = y + i
+                    x_index = x + j
+                    if 0 <= y_index < image.shape[0] and 0 <= x_index < image.shape[1]:
+                        image[y_index, x_index] = resized_overlay[i, j, 0:3]
     return image
+
 
 def face_replace_pipeline(input_image_path, overlay_image_path, output_image_path, horizontal_scale, vertical_scale, xLocation, yLocation):
     # Load the images
@@ -133,7 +138,15 @@ for dirpath, dirs, files in os.walk(pfs_source_images):
     for file in files:
         if file.endswith((".jpg", ".jpeg", ".png")):
             input_image_path = os.path.join(dirpath, file)
-            overlay_image_path = os.path.join(pfs_source_overlay, os.listdir(pfs_source_overlay)[0])
+            # overlay_image_path = os.path.join(pfs_source_overlay, os.listdir(pfs_source_overlay)[0])
+            # retrieve the overlay image from the url with requests, store it in a temp file, and then use that temp file as the overlay image
+            request = requests.get(url_source_overlay, stream=True)
+            # create /pfs/staging/overlay if it doesn't exist
+            os.makedirs("/pfs/staging/overlay", exist_ok=True)
+            overlay_image_path = f"/pfs/staging/overlay/{uuid.uuid4()}.png"
+            with open(overlay_image_path, 'wb') as f:
+                f.write(request.content)
+
             output_image_path = f"/pfs/out/swapped/{uuid.uuid4()}.jpg"
             os.makedirs(os.path.dirname(output_image_path), exist_ok=True)
             face_replace_pipeline(input_image_path, overlay_image_path, output_image_path, horizontal_scale, vertical_scale, xLocation, yLocation)

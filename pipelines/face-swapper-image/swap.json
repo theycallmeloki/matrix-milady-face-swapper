@@ -1,0 +1,18 @@
+{
+    "pipeline": {
+        "name": "face-swapper"
+    },
+    "input": {
+        "pfs": {
+            "glob": "/*",
+            "repo": "nonmilady"
+        }
+    },
+    "transform": {
+        "image_pull_secrets": [
+            "laneonekey"
+        ],
+        "cmd": ["python3", "/face_swapper.py", "nonmilady", "https://i.imgur.com/VFVpAP8.png", "3", "3", "-1", "-1"],
+        "image": "laneone/edith-images"
+    }
+}
