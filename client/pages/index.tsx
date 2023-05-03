@@ -377,7 +377,12 @@ const Home: NextPage = () => {
                                 padding: '20px',
                             }}
                         >
-                            {userDownloadLink && (
+                            
+                        </form>
+                        <br />
+                        <br />
+                        <br />
+                        {userDownloadLink && (
                                 <div style={{ textAlign: 'center' }}>
                                     {isWaitingForDownload === true ? (
                                         'Your download will appear here when ready.'
@@ -403,10 +408,6 @@ const Home: NextPage = () => {
                                     )}
                                 </div>
                             )}
-                        </form>
-                        <br />
-                        <br />
-                        <br />
                     </div>
                 </div>
             </main>
