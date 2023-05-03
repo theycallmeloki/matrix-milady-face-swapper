@@ -129,8 +129,8 @@ async def uploadImageOrVideo():
             client.create_pipeline(
                 processed,
                 transform=python_pachyderm.Transform(
-                    cmd=["python3", "/face_swapper.py", f"{imgswap}", f"{selectedMilady}", f"{xScale}", f"{yScale}", f"{xLocation}", f"{yLocation}"],
-                    image="laneone/edith-images:7eeee5e19a024179ac2f65df0928f447",
+                    cmd=["python3", "/face_swapper.py", f"{imgswap}", f"{selectedMilady}", "http://localhost:5000/uploadSwappedImage", f"{xScale}", f"{yScale}", f"{xLocation}", f"{yLocation}"],
+                    image="laneone/edith-images:1f3d6f9424884007be668e0ceb3ed266",
                     image_pull_secrets=["laneonekey"],
                 ),
                 input=python_pachyderm.Input(
@@ -141,6 +141,19 @@ async def uploadImageOrVideo():
 
     return json.dumps(jobs)
 
+@app.route("/uploadImageOrVideo", methods=["POST"])
+async def uploadImageOrVideo():
+    jobs = []
+    print("Number of files:", len(await request.files))
+    for field_name, file_storage in (await request.files).items():
+        selectedMilady = (await request.form)["selectedMilady"]
+        xScale = (await request.form)["xScale"]
+        yScale = (await request.form)["yScale"]
+        xLocation = (await request.form)["xLocation"]
+        yLocation = (await request.form)["yLocation"]
+        print("Selected Milady:", selectedMilady)
+        print("Field name: " + field_name)
+        print("File name: " + file_storage.filename)
         # if not (is_image or is_video):
         #     return json.dumps({"error": "File is neither image nor video"})
 
