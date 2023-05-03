@@ -156,7 +156,7 @@ async def uploadImageOrVideo():
                 processed,
                 transform=python_pachyderm.Transform(
                     cmd=["python3", "/face_swapper.py", f"{imgswap}", f"{selectedMilady}", "http://192.168.0.221:5000/uploadSwappedImage", f"{xScale}", f"{yScale}", f"{xLocation}", f"{yLocation}"],
-                    image="laneone/edith-images:5d2604eda46a406ebe55ef063cf2fcac",
+                    image="laneone/edith-images:221df1ab01c548a29be649f0e92ea06c",
                     image_pull_secrets=["laneonekey"],
                 ),
                 input=python_pachyderm.Input(

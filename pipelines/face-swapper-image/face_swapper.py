@@ -87,8 +87,9 @@ def face_replace_pipeline(input_image_path, overlay_image_path, output_image_pat
     overlay_image = load_overlay_image(overlay_image_path)
 
     # Initialize the face detector and facial landmarks predictor
+    print(os.listdir())
     detector = dlib.get_frontal_face_detector()
-    predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
+    predictor = dlib.shape_predictor('/shape_predictor_68_face_landmarks.dat')
 
     # Detect faces in the input image
     rects = detect_faces(image, detector)
