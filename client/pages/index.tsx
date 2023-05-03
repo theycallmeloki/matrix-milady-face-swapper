@@ -213,7 +213,7 @@ import React, {
             <div
               style={{
                 width: "85%",
-                height: "900px",
+                height: "1200px",
                 borderStyle: "dashed",
                 backgroundColor: "grey",
                 marginTop: '50px'

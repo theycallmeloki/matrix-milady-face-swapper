@@ -105,6 +105,9 @@ async def uploadImageOrVideo():
             jobs.append(new_job_id)
             print(new_job_id)
             actual_file = file_storage.read()
+            # create a directory to store the blend files
+            if not os.path.exists("/tmp/blends"):
+                os.makedirs("/tmp/blends")
             with open("/tmp/blends/" + new_job_id + '.' + ext, "wb") as reader:
                 reader.write(actual_file)
             print("Size: " + str(len(actual_file)))
