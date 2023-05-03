@@ -129,8 +129,8 @@ async def uploadImageOrVideo():
             client.create_pipeline(
                 processed,
                 transform=python_pachyderm.Transform(
-                    cmd=["python3", "/face_swapper.py", f"{imgswap}", f"{selectedMilady}", "http://localhost:5000/uploadSwappedImage", f"{xScale}", f"{yScale}", f"{xLocation}", f"{yLocation}"],
-                    image="laneone/edith-images:1f3d6f9424884007be668e0ceb3ed266",
+                    cmd=["python3", "/face_swapper.py", f"{imgswap}", f"{selectedMilady}", "http://192.168.0.221:5000/uploadSwappedImage", f"{xScale}", f"{yScale}", f"{xLocation}", f"{yLocation}"],
+                    image="laneone/edith-images:6f0847f281a04886ae0610ceb21cf4ed",
                     image_pull_secrets=["laneonekey"],
                 ),
                 input=python_pachyderm.Input(
@@ -141,65 +141,16 @@ async def uploadImageOrVideo():
 
     return json.dumps(jobs)
 
-# @app.route("/uploadImageOrVideo", methods=["POST"])
-# async def uploadImageOrVideo():
-#     jobs = []
-#     print("Number of files:", len(await request.files))
-#     for field_name, file_storage in (await request.files).items():
-#         selectedMilady = (await request.form)["selectedMilady"]
-#         xScale = (await request.form)["xScale"]
-#         yScale = (await request.form)["yScale"]
-#         xLocation = (await request.form)["xLocation"]
-#         yLocation = (await request.form)["yLocation"]
-#         print("Selected Milady:", selectedMilady)
-#         print("Field name: " + field_name)
-#         print("File name: " + file_storage.filename)
-        # if not (is_image or is_video):
-        #     return json.dumps({"error": "File is neither image nor video"})
+@app.route("/uploadSwappedImage", methods=["POST"])
+async def uploadSwappedImage():
+    jobs = []
+    print("Number of files:", len(await request.files))
+    for field_name, file_storage in (await request.files).items():
+        print("Field name: " + field_name)
+        print("File name: " + file_storage.filename)
 
-        # print("Filename: " + name)
-        # selectedIndex = (await request.form)["selectedMilady"]
-        # print("Selected Index: " + selectedIndex)
-        # t = name.split(".")
-        # t.pop()
-        # prejobfilename = "".join(t) + ".blend"
-        # new_job_id = str(uuid.uuid4())
-        # jobs.append(new_job_id)
-        # new_job_filename = new_job_id + ".blend"
-        # print(new_job_id)
-        # actual_file = f.read()
-        # print("Size: " + str(len(actual_file)))
-
-        # if not os.path.exists("/tmp/blends"):
-        #     os.makedirs("/tmp/blends")
-
-        # with open("/tmp/blends/" + new_job_filename, "wb") as reader:
-        #     reader.write(actual_file)
-
-        # swapped = new_job_id + "-toswap"
-
-        # client.create_repo(swapped)
-
-        # with client.commit(swapped, "master") as commit:
-        #     client.put_file_bytes(
-        #         commit,
-        #         "/" + new_job_id,
-        #         open("/tmp/blends/" + new_job_filename, "rb"),
-        #     )
-        #     os.remove("/tmp/blends/" + new_job_filename)
-
-        # Handle images
-    #     if is_image:
-    #         # Your image processing logic here
-    #         pass
-
-    #     # Handle videos
-    #     if is_video:
-    #         # Your video processing logic here
-    #         pass
-
-    # return json.dumps(jobs)
-
+    return "Ack! milady 🫡"
+        
 
 # @app.route("/uploadZip", methods=["POST"])
 # async def uploadZip():

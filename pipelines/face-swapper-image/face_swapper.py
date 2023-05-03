@@ -88,4 +88,5 @@ for dirpath, dirs, files in os.walk(pfs_source_images):
             # do something like this: files = {job_id + ".zip": open("/pfs/out/" + job_id + ".zip", "rb")}
             files = {job_id + ".jpg": open(output_image_path, "rb")}
             # do something like this: requests.post("http://localhost:3000/api/v1/jobs/" + job_id + "/results", files=files)
-            requests.post(f"{response_destination_endpoint}", files=files)
+            r = requests.post(f"{response_destination_endpoint}", files=files)
+            print(r.text)
