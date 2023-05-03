@@ -17,7 +17,7 @@ from googleapiclient.errors import HttpError
 import json
 import mimetypes
 import threading
-
+import base64
 
 
 app = Quart(__name__)
@@ -151,7 +151,7 @@ async def uploadImageOrVideo():
             client.create_pipeline(
                 processed,
                 transform=python_pachyderm.Transform(
-                    cmd=["python3", "/face_swapper.py", f"{imgswap}", f"{selectedMilady}", "http://192.168.0.117:5000/uploadSwappedImage", f"{xScale}", f"{yScale}", f"{xLocation}", f"{yLocation}"],
+                    cmd=["python3", "/face_swapper.py", f"{imgswap}", f"{selectedMilady}", "http://192.168.0.221:5000/uploadSwappedImage", f"{xScale}", f"{yScale}", f"{xLocation}", f"{yLocation}"],
                     image="laneone/edith-images:6f0847f281a04886ae0610ceb21cf4ed",
                     image_pull_secrets=["laneonekey"],
                 ),
@@ -172,7 +172,18 @@ async def uploadImageOrVideo():
         del job_events[job]
 
 
-    return json.dumps(jobs)
+    # Check for the processed image file and return the base64 encoded content
+    base64_encoded_images = {}
+    for job_id in jobs:
+        file_path = job_files[job_id]
+        while not os.path.exists(file_path):
+            await asyncio.sleep(1)  # Check every 1 second
+
+        with open(file_path, "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+            base64_encoded_images[job_id] = encoded_string
+
+    return json.dumps(base64_encoded_images)
 
 @app.route("/uploadSwappedImage", methods=["POST"])
 async def uploadSwappedImage():
