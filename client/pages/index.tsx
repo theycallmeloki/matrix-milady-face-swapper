@@ -68,6 +68,23 @@ import React, {
     const [selectedIndex, setSelectedIndex] = useState(null);
   
     const dropzoneRef = useRef(null);
+
+    useEffect(() => {
+        const eventSource = new EventSource('/api/events');
+
+        eventSource.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            console.log('Received event:', data);
+        };
+
+        eventSource.onerror = (error) => {
+            console.error('EventSource error:', error);
+        };
+
+        return () => {
+            eventSource.close();
+        };
+    }, []);
   
     useEffect(() => {
       if (dropzoneRef.current) {

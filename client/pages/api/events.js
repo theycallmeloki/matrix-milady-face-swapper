@@ -1,7 +1,21 @@
 import { send } from 'micro';
 import { compose } from 'micro-hoofs';
 
-import cors from '../utils/cors';
+const cors = (handler) => async (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  return handler(req, res);
+};
+
 
 const eventHandler = (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
