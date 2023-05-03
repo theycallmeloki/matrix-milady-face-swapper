@@ -23,7 +23,7 @@ jobs:
           curl -sSL https://github.com/theycallmeloki/edith-cli/raw/main/edith -o edith
           chmod +x edith
           sudo apt-get update
-          sudo apt-get install -y python3-pip nginx
+          sudo apt-get install -y python3-pip nginx jq
           sudo python3 -m pip install ansible kubernetes jmespath
           sudo ./edith install
     
