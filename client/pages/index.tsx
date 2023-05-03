@@ -16,17 +16,6 @@ import Dropzone from 'dropzone';
 import Image from 'next/image';
 // import "dropzone/dist/min/dropzone.min.css";
 
-function getImageTypeFromBase64(base64String) {
-    const regex = /^data:image\/(\w+);base64/;
-    const match = regex.exec(base64String);
-
-    if (match) {
-        return match[1];
-    }
-
-    return null;
-}
-
 const Home: NextPage = () => {
     const widthDeterminer = (widthOfWindow: any) => {
         if (widthOfWindow < 500) {
@@ -42,9 +31,11 @@ const Home: NextPage = () => {
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
+            // @ts-ignore
             setWindowWidth(window.innerWidth);
 
             const handleResize = () => {
+                // @ts-ignore
                 setWindowWidth(window.innerWidth);
             };
 
@@ -86,9 +77,13 @@ const Home: NextPage = () => {
         const data = miladys.find((entry: any) => entry.url === url);
 
         if (data) {
+            // @ts-ignore
             const x_scale = data.x_scale || "3";
+            // @ts-ignore
             const y_scale = data.y_scale || "3";
+            // @ts-ignore
             const x_location = data.x_location || "-1";
+            // @ts-ignore
             const y_location = data.y_location || "-1";
 
             return {
@@ -140,6 +135,7 @@ const Home: NextPage = () => {
                     alert('Please select a milady before uploading a file.');
                     return;
                 } else {
+                    // @ts-ignore
                     selectedMiladyUrl = miladys[selectedIndex].url;
                     // console.log(findUrlData(selectedMiladyUrl));
 
@@ -321,7 +317,7 @@ const Home: NextPage = () => {
                         >
                             {miladys &&
                                 Array.isArray(miladys) &&
-                                miladys.map((milady, index) => {
+                                miladys.map((milady: any, index: any) => {
                                     const isSelected = selectedIndex === index;
                                     return (
                                         <div
