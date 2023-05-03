@@ -19,6 +19,17 @@ vertical_scale = float(sys.argv[5])
 xLocation = int(sys.argv[6])
 yLocation = int(sys.argv[7])
 
+print("pfs_source_images: " + pfs_source_images)
+print("job_id_with_ext: " + job_id_with_ext)
+print("job_id: " + job_id)
+print("url_source_overlay: " + url_source_overlay)
+print("response_destination_endpoint: " + response_destination_endpoint)
+print("horizontal_scale: " + str(horizontal_scale))
+print("vertical_scale: " + str(vertical_scale))
+print("xLocation: " + str(xLocation))
+print("yLocation: " + str(yLocation))
+
+
 def load_image(image_path):
     image = cv2.imread(image_path)
     image = imutils.resize(image, width=500)
@@ -33,14 +44,34 @@ def detect_faces(image, detector):
     rects = detector(gray, 1)
     return rects
 
-def replace_faces(image, overlay_image, rects, horizontal_scale, vertical_scale, xLocation, yLocation):
+def get_rotation_angle(shape):
+    left_eye = np.mean(shape[36:42], axis=0)
+    right_eye = np.mean(shape[42:48], axis=0)
+    angle = np.degrees(np.arctan2(right_eye[1] - left_eye[1], right_eye[0] - left_eye[0]))
+    return angle
+
+def replace_faces(image, overlay_image, rects, horizontal_scale, vertical_scale, xLocation, yLocation, predictor):
     for rect in rects:
         x, y, w, h = rect.left(), rect.top(), rect.width(), rect.height()
+
+        # Get facial landmarks
+        shape = predictor(image, rect)
+        shape = np.array([(p.x, p.y) for p in shape.parts()])
+
+        # Calculate rotation angle
+        angle = get_rotation_angle(shape)
+
+        # Rotate overlay image
+        rows, cols, _ = overlay_image.shape
+        rotation_matrix = cv2.getRotationMatrix2D((cols / 2, rows / 2), angle, 1)
+        rotated_overlay = cv2.warpAffine(overlay_image, rotation_matrix, (cols, rows))
+
+        # Replace face with rotated overlay
         w = int(w * horizontal_scale)
         h = int(h * vertical_scale)
-        x += xLocation - w // 2  # Subtract half the width to center the overlay image horizontally
-        y += yLocation - h // 2  # Subtract half the height to center the overlay image vertically
-        resized_overlay = cv2.resize(overlay_image, (w, h), interpolation=cv2.INTER_AREA)
+        x += xLocation - w // 2
+        y += yLocation - h // 2
+        resized_overlay = cv2.resize(rotated_overlay, (w, h), interpolation=cv2.INTER_AREA)
         for i in range(h):
             for j in range(w):
                 if resized_overlay[i, j, 3] != 0:
@@ -50,20 +81,20 @@ def replace_faces(image, overlay_image, rects, horizontal_scale, vertical_scale,
                         image[y_index, x_index] = resized_overlay[i, j, 0:3]
     return image
 
-
 def face_replace_pipeline(input_image_path, overlay_image_path, output_image_path, horizontal_scale, vertical_scale, xLocation, yLocation):
     # Load the images
     image = load_image(input_image_path)
     overlay_image = load_overlay_image(overlay_image_path)
 
-    # Initialize the face detector
+    # Initialize the face detector and facial landmarks predictor
     detector = dlib.get_frontal_face_detector()
+    predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 
     # Detect faces in the input image
     rects = detect_faces(image, detector)
 
     # Replace faces in the input image with the overlay image
-    result_image = replace_faces(image, overlay_image, rects, horizontal_scale, vertical_scale, xLocation, yLocation)
+    result_image = replace_faces(image, overlay_image, rects, horizontal_scale, vertical_scale, xLocation, yLocation, predictor)
 
     # Save the result
     cv2.imwrite(output_image_path, result_image)

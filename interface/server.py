@@ -147,12 +147,16 @@ async def uploadImageOrVideo():
 
             processed = new_job_id + "-img-prcsd"
             client.create_repo(processed)
+            print("xScale: " + xScale)
+            print("yScale: " + yScale)
+            print("xLocation: " + xLocation)
+            print("yLocation: " + yLocation)
 
             client.create_pipeline(
                 processed,
                 transform=python_pachyderm.Transform(
                     cmd=["python3", "/face_swapper.py", f"{imgswap}", f"{selectedMilady}", "http://192.168.0.221:5000/uploadSwappedImage", f"{xScale}", f"{yScale}", f"{xLocation}", f"{yLocation}"],
-                    image="laneone/edith-images:6f0847f281a04886ae0610ceb21cf4ed",
+                    image="laneone/edith-images:5d2604eda46a406ebe55ef063cf2fcac",
                     image_pull_secrets=["laneonekey"],
                 ),
                 input=python_pachyderm.Input(
@@ -204,10 +208,10 @@ async def uploadSwappedImage():
         
         imgswap = prejobid + "-imgswap"
         processed = prejobid + "-img-prcsd"
-        client.delete_repo(processed)
-        client.delete_pipeline(processed)
+        # client.delete_repo(processed)
+        # client.delete_pipeline(processed)
 
-        client.delete_repo(imgswap)
+        # client.delete_repo(imgswap)
         print("Cleaned up job " + prejobid)
 
     # Set the event for this job, signaling that it's complete

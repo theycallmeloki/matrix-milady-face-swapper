@@ -45,4 +45,6 @@ RUN pip3 install opencv-python-headless imutils requests --verbose
 
 ADD face_swapper.py /face_swapper.py
 
+ADD shape_predictor_68_face_landmarks.dat.bz2 /shape_predictor_68_face_landmarks.dat.bz2
+
 CMD ["python3", "/face_swapper.py", "milady", "nonmilady"]

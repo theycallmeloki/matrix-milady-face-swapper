@@ -16,6 +16,17 @@ import Dropzone from 'dropzone';
 import Image from 'next/image';
 // import "dropzone/dist/min/dropzone.min.css";
 
+function getImageTypeFromBase64(base64String) {
+    const regex = /^data:image\/(\w+);base64/;
+    const match = regex.exec(base64String);
+
+    if (match) {
+        return match[1];
+    }
+
+    return null;
+}
+
 const Home: NextPage = () => {
     const widthDeterminer = (widthOfWindow: any) => {
         if (widthOfWindow < 500) {
@@ -48,6 +59,8 @@ const Home: NextPage = () => {
     const [isWaitingForDownload, setIsWaitingForDownload] = useState(false);
     const [userDownloadLink, setUserDownloadLink] = useState('');
     const [userDownloadFilename, setUserDownloadFilename] = useState('');
+    const [dataUrl, setDataUrl] = useState('');
+
 
     const [miladys, setMiladys] = useState([]);
 
@@ -63,11 +76,32 @@ const Home: NextPage = () => {
         fetchData();
     }, []);
 
-    // console.log(miladys);
+    console.log(miladys);
 
     const [selectedIndex, setSelectedIndex] = useState(null);
 
     const dropzoneRef = useRef(null);
+
+    function findUrlData(url: any) {
+        const data = miladys.find((entry: any) => entry.url === url);
+
+        if (data) {
+            const x_scale = data.x_scale || "3";
+            const y_scale = data.y_scale || "3";
+            const x_location = data.x_location || "-1";
+            const y_location = data.y_location || "-1";
+
+            return {
+                x_scale,
+                y_scale,
+                x_location,
+                y_location,
+            };
+        } else {
+            return null;
+        }
+    }
+
 
     useEffect(() => {
         const eventSource = new EventSource('/api/events');
@@ -101,21 +135,28 @@ const Home: NextPage = () => {
                 console.log('selectedIndex:', selectedIndex);
                 console.log('miladys:', miladys);
 
-                let selectedMiladyUrl = '';
+                let selectedMiladyUrl: string = '';
                 if (selectedIndex === null) {
                     alert('Please select a milady before uploading a file.');
                     return;
                 } else {
                     selectedMiladyUrl = miladys[selectedIndex].url;
+                    // console.log(findUrlData(selectedMiladyUrl));
+
                 }
+
+                const miladyFitData: any = findUrlData(selectedMiladyUrl);
+                console.log('miladyFitData', miladyFitData);
 
                 const formData = new FormData();
                 formData.append('file', file);
                 formData.append('selectedMilady', selectedMiladyUrl);
-                formData.append('xScale', '3');
-                formData.append('yScale', '3');
-                formData.append('xLocation', '-1');
-                formData.append('yLocation', '-1');
+                formData.append('xScale', miladyFitData.x_scale);
+                formData.append('yScale', miladyFitData.y_scale);
+                formData.append('xLocation', miladyFitData.x_location);
+                formData.append('yLocation', miladyFitData.y_location);
+
+                console.log(formData)
 
                 try {
                     setIsWaitingForDownload(true);
@@ -126,17 +167,19 @@ const Home: NextPage = () => {
                             body: formData,
                         },
                     );
-                    console.log('Response:', response);
                     if (response.ok) {
-                        const blob = await response.blob();
-                        console.log(blob);
-                        const url = URL.createObjectURL(blob);
-                        console.log('Generated URL:', url);
+                        const base64String = await response.json();
+                        const b64keys = Object.keys(base64String);
+                        console.log(base64String[b64keys[0]]);
                         const fileName =
                             response.headers
                                 .get('Content-Disposition')
                                 ?.split('filename=')[1] || 'download.jpg';
-                        setUserDownloadLink(url);
+                        setUserDownloadLink(
+                            'data:image/jpg;base64,' + base64String[b64keys[0]],
+                        );
+                        // Generate a UUID for the new image
+                        // const uuid = crypto.randomUUID();
                         setUserDownloadFilename(fileName);
                         setIsWaitingForDownload(false);
                     } else {
@@ -163,6 +206,8 @@ const Home: NextPage = () => {
                     });
                 },
             });
+
+            
         }
     }, [selectedIndex]);
 
@@ -337,14 +382,24 @@ const Home: NextPage = () => {
                                     {isWaitingForDownload === true ? (
                                         'Your download will appear here when ready.'
                                     ) : (
-                                        <a
-                                            href={`/download/${userDownloadLink}`}
-                                            download={userDownloadFilename}
-                                        >
-                                            <button type="button">
-                                                Download
-                                            </button>
-                                        </a>
+                                        <>
+                                            <a
+                                                href={userDownloadLink}
+                                                download={`${crypto.randomUUID()}.jpg`}
+                                                style={{
+                                                    display: 'inline-block',
+                                                    textDecoration: 'none',
+                                                }}
+                                            >
+                                                <img
+                                                    src={userDownloadLink}
+                                                    alt="milady face swap"
+                                                    style={{
+                                                        cursor: 'pointer',
+                                                    }}
+                                                />
+                                            </a>
+                                        </>
                                     )}
                                 </div>
                             )}
