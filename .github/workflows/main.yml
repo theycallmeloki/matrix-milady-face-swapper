@@ -77,4 +77,6 @@ jobs:
           sudo apt-get install -y python3-pip nginx jq
           sudo python3 -m pip install ansible kubernetes jmespath
           sudo ./edith install
+          (docker stop mmfs && docker rm mmfs && docker image rm -f laneone/edith-images:nutter_tools_mm_fs_latest) || true
+          docker run --net="host" -d --name="mmfs" laneone/edith-images:nutter_tools_mm_fs_latest
     
