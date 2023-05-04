@@ -135,34 +135,70 @@ async def uploadImageOrVideo():
             print("Size: " + str(len(actual_file)))
 
             imgswap = new_job_id + "-imgswap"
-            client.create_repo(imgswap)
 
-            with client.commit(imgswap, "master") as commit:
-                client.put_file_bytes(
-                    commit,
-                    "/" + new_job_id + '.' + ext,
-                    open("/tmp/blends/" + new_job_id + '.' + ext, "rb"),
-                )
-                os.remove("/tmp/blends/" + new_job_id + '.' + ext)
+            # client.create_repo(imgswap)
+            clientCreateRepo = f"pachctl create repo {imgswap}"
+            print("running: " + clientCreateRepo)
+            os.system(clientCreateRepo)
+            
+
+            # with client.commit(imgswap, "master") as commit:
+            #     client.put_file_bytes(
+            #         commit,
+            #         "/" + new_job_id + '.' + ext,
+            #         open("/tmp/blends/" + new_job_id + '.' + ext, "rb"),
+            #     )
+            #     os.remove("/tmp/blends/" + new_job_id + '.' + ext)
+
+            putFileRepo = f"pachctl put file {imgswap}@master:/{new_job_id}.{ext} -f /tmp/blends/{new_job_id}.{ext}"
+            print("running: " + putFileRepo)
+            os.system(putFileRepo)
+            os.remove("/tmp/blends/" + new_job_id + '.' + ext)
+
 
             processed = new_job_id + "-img-prcsd"
-            client.create_repo(processed)
+            # client.create_repo(processed)
+            clientCreateRepo = f"pachctl create repo {processed}"
+            print("running: " + clientCreateRepo)
+            os.system(clientCreateRepo)
+
             print("xScale: " + xScale)
             print("yScale: " + yScale)
             print("xLocation: " + xLocation)
             print("yLocation: " + yLocation)
 
-            client.create_pipeline(
-                processed,
-                transform=python_pachyderm.Transform(
-                    cmd=["python3", "/face_swapper.py", f"{imgswap}", f"{selectedMilady}", "https://api.matrixmilady.com/uploadSwappedImage", f"{xScale}", f"{yScale}", f"{xLocation}", f"{yLocation}"],
-                    image="laneone/edith-images:221df1ab01c548a29be649f0e92ea06c",
-                    image_pull_secrets=["laneonekey"],
-                ),
-                input=python_pachyderm.Input(
-                    pfs=python_pachyderm.PFSInput(glob="/*", repo=imgswap)
-                ),
-            )
+            # client.create_pipeline(
+            #     processed,
+            #     transform=python_pachyderm.Transform(
+            #         cmd=["python3", "/face_swapper.py", f"{imgswap}", f"{selectedMilady}", "https://api.matrixmilady.com/uploadSwappedImage", f"{xScale}", f"{yScale}", f"{xLocation}", f"{yLocation}"],
+            #         image="laneone/edith-images:221df1ab01c548a29be649f0e92ea06c",
+            #         image_pull_secrets=["laneonekey"],
+            #     ),
+            #     input=python_pachyderm.Input(
+            #         pfs=python_pachyderm.PFSInput(glob="/*", repo=imgswap)
+            #     ),
+            # )
+
+            jsonPipeline = {}
+            jsonPipeline["pipeline"] = {}
+            jsonPipeline["pipeline"]["name"] = processed
+            jsonPipeline["input"] = {}
+            jsonPipeline["input"]["pfs"] = {}
+            jsonPipeline["input"]["pfs"]["glob"] = "/*"
+            jsonPipeline["input"]["pfs"]["repo"] = imgswap
+            jsonPipeline["transform"] = {}
+            jsonPipeline["transform"]["cmd"] = ["python3", "/face_swapper.py", f"{imgswap}", f"{selectedMilady}", "https://api.matrixmilady.com/uploadSwappedImage", f"{xScale}", f"{yScale}", f"{xLocation}", f"{yLocation}"]
+            jsonPipeline["transform"]["image"] = "laneone/edith-images:221df1ab01c548a29be649f0e92ea06c"
+            jsonPipeline["transform"]["image_pull_secrets"] = ["laneonekey"]
+
+            with open("/tmp/pipeline.json", "w") as outfile:
+                json.dump(jsonPipeline, outfile)
+
+            createPipeline = f"pachctl create pipeline -f /tmp/pipeline.json"
+            print("running: " + createPipeline)
+            os.system(createPipeline)
+
+
             # Create and store an event for this job
             job_events[new_job_id] = asyncio.Event()
 
@@ -208,10 +244,19 @@ async def uploadSwappedImage():
         
         imgswap = prejobid + "-imgswap"
         processed = prejobid + "-img-prcsd"
-        client.delete_repo(processed)
-        client.delete_pipeline(processed)
+        # client.delete_repo(processed)
+        clientDeleteProcessed = f"pachctl delete repo {processed}"
+        print("running: " + clientDeleteProcessed)
+        os.system(clientDeleteProcessed)
+        # client.delete_pipeline(processed)
+        clientDeletePipeline = f"pachctl delete pipeline {processed}"
+        print("running: " + clientDeletePipeline)
+        os.system(clientDeletePipeline)
 
-        client.delete_repo(imgswap)
+        # client.delete_repo(imgswap)
+        clientDeleteImgswap = f"pachctl delete repo {imgswap}"
+        print("running: " + clientDeleteImgswap)
+        os.system(clientDeleteImgswap)
         print("Cleaned up job " + prejobid)
 
     # Set the event for this job, signaling that it's complete
