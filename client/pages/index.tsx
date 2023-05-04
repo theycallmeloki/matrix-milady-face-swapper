@@ -48,9 +48,7 @@ const Home: NextPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       const response = await fetch("/api/sheets");
-      // console.log(response)
       const data = await response.json();
-      // console.log(data);
       setMiladys(data);
     };
 
@@ -99,22 +97,6 @@ const Home: NextPage = () => {
     }
   };
 
-  // useEffect(() => {
-  //     const eventSource = new EventSource('/api/events');
-
-  //     eventSource.onmessage = (event) => {
-  //         const data = JSON.parse(event.data);
-  //         console.log('Received event:', data);
-  //     };
-
-  //     eventSource.onerror = (error) => {
-  //         console.error('EventSource error:', error);
-  //     };
-
-  //     return () => {
-  //         eventSource.close();
-  //     };
-  // }, []);
 
   useEffect(() => {
     if (dropzoneRef.current) {
@@ -215,10 +197,7 @@ const Home: NextPage = () => {
     console.log("Selected index:", selectedIndex);
   };
 
-  // const [fetchedNFTs, setFetchedNFTs] = useState<any[]>([]);
-  // const [userOwnedNFTs, setUserOwnedNFTs] = useState<any[]>([]);
   const [walletAddress, setWalletAddress] = useState(null);
-  // const [holdsRequiredNFT, setHoldsRequiredNFT] = useState(false);
   const [userIsOg, setUserIsOg] = useState(false);
 
   useEffect(() => {
@@ -254,8 +233,6 @@ const Home: NextPage = () => {
             setUserIsOg(true);
           }
         });
-        // setHoldsRequiredNFT(userIsAnOG);
-        // setFetchedNFTs(sourcedNFTs.assets);
       };
       fetchAndUpdateNFTs();
     }
@@ -265,10 +242,6 @@ const Home: NextPage = () => {
     console.log("Parent received wallet address:", address);
     // do the nft lookup call only once, and store the results in a state variable setFetchedNFTs and setUserOwnedNFTs
     setWalletAddress(address);
-    // const sourcedNFTs = await fetchNFTs(address);
-    // console.log(sourcedNFTs)
-    // console.log('sourcedNFTs:', sourcedNFTs.assets);
-    // setFetchedNFTs(sourcedNFTs.assets);
   };
 
   return (
@@ -414,7 +387,7 @@ const Home: NextPage = () => {
               style={{
                 border: "5px grey dashed",
                 borderRadius: "10px",
-
+                marginTop: "50px",
                 padding: "20px",
               }}
             ></form>
@@ -427,6 +400,7 @@ const Home: NextPage = () => {
                   backgroundColor: "white",
                   marginTop: "50px",
                   borderRadius: "20px",
+                  padding: '20px', 
                 }}
               >
                 {isWaitingForDownload === true ? (
@@ -438,7 +412,11 @@ const Home: NextPage = () => {
                       download={`${crypto.randomUUID()}.jpg`}
                       style={{
                         display: "inline-block",
-                        textDecoration: "none",
+                          textDecoration: "none",
+                          borderStyle: 'solid', 
+                          padding: '10px',
+                          borderRadius: '10px',
+                            backgroundColor: 'black',
                       }}
                     >
                       <img
