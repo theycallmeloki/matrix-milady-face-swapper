@@ -1,16 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 export const CustomConnectWallet = ({ onWalletAddressChange }) => {
   const [connectedAddress, setConnectedAddress] = useState(null);
 
-  const handleAddressChange = (account) => {
-    if (account && account.address) {
-      setConnectedAddress(account.address);
-      onWalletAddressChange(account.address);
-      console.log('Connected wallet address:', account.address);
-    }
-  };
+  const handleAddressChange = useCallback(
+    (account) => {
+      if (account && account.address) {
+        setConnectedAddress(account.address);
+        onWalletAddressChange(account.address);
+        console.log('Connected wallet address:', account.address);
+      }
+    },
+    [onWalletAddressChange]
+  );
 
   return (
     <ConnectButton.Custom>
@@ -25,7 +28,7 @@ export const CustomConnectWallet = ({ onWalletAddressChange }) => {
       }) => {
         useEffect(() => {
           handleAddressChange(account);
-        }, [account]);
+        }, [account, handleAddressChange]);
 
         const ready = mounted && authenticationStatus !== 'loading';
         const connected =
@@ -60,7 +63,7 @@ export const CustomConnectWallet = ({ onWalletAddressChange }) => {
             {(() => {
               if (!connected) {
                 return (
-                  <button onClick={handleSignInClick} type="button" style={{fontSize: '20px'}}>
+                  <button onClick={handleSignInClick} type="button" style={{ fontSize: '20px' }}>
                     Sign in
                   </button>
                 );
@@ -68,11 +71,9 @@ export const CustomConnectWallet = ({ onWalletAddressChange }) => {
 
               return (
                 <div>
-                  <button onClick={openAccountModal} type="button" style={{fontSize: '20px'}}>
+                  <button onClick={openAccountModal} type="button" style={{ fontSize: '20px' }}>
                     {account.displayName}
-                    {account.displayBalance
-                      ? ` (${account.displayBalance})`
-                      : ''}
+                    {account.displayBalance ? ` (${account.displayBalance})` : ''}
                   </button>
                 </div>
               );
