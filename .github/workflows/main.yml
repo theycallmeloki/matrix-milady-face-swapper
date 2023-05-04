@@ -31,21 +31,6 @@ jobs:
         source: "interface/server.py"
         target: "/root"
 
-    - name: Run Ansible playbook
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USERNAME }}
-        password: ${{ secrets.SSH_PASSWORD }}
-        script: |
-          # mkdir -p setup-node
-          # mv /root/setup-node.yml setup-node/
-          # cd setup-node
-          # sudo apt-get update
-          # sudo apt-get install -y python3 python3-pip
-          # sudo pip3 install ansible
-          ansible-playbook setup-mm-fs-node.yml -i "localhost," --extra-vars "ansible_user=${{ secrets.SSH_USERNAME }} letsencrypt_email=${{ secrets.NODE_ADMIN_EMAIL }}" --connection=local
-
     - name: Set up Docker
       uses: docker/setup-buildx-action@v1
 
@@ -81,5 +66,5 @@ jobs:
           (docker stop mmfs && docker rm mmfs && docker image rm -f laneone/edith-images:nutter_tools_mm_fs_latest) || true
           docker run --net="host" -d --name="mmfs" laneone/edith-images:nutter_tools_mm_fs_latest
           kubectl create secret docker-registry laneonekey --docker-server=https://index.docker.io/v1/ --docker-username=${{ secrets.DOCKERHUB_USERNAME }} --docker-password=${{ secrets.DOCKERHUB_TOKEN }} --docker-email=${{ secrets.NODE_ADMIN_EMAIL }} || true
-
+          ansible-playbook setup-mm-fs-node.yml -i "localhost," --extra-vars "ansible_user=${{ secrets.SSH_USERNAME }} letsencrypt_email=${{ secrets.NODE_ADMIN_EMAIL }}" --connection=local
     
