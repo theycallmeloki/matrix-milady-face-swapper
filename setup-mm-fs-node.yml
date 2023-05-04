@@ -59,7 +59,7 @@
         job: "/usr/local/bin/start_server_py.sh"
 
     - name: Check if server.py is running
-      ansible.builtin.shell: pgrep -f "python3 {{ ansible_env.HOME }}/server.py"
+      ansible.builtin.shell: pgrep -f "python3 server.py"
       register: server_py_running
       ignore_errors: yes
 
