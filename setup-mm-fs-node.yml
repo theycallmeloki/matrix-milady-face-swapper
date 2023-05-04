@@ -142,40 +142,16 @@
         state: reloaded
       become: true
     
-    - name: Check for existing certificates for main face swapper next app
-      ansible.builtin.stat:
-        path: /etc/letsencrypt/live/{{ item.domain }}/fullchain.pem
-      register: cert_stat_main
-      with_items: "{{ domain_list }}"
-
-    - name: Check for existing certificates for sidecar server python app
-      ansible.builtin.stat:
-        path: /etc/letsencrypt/live/{{ item.domain }}/fullchain.pem
-      register: cert_stat_api
-      with_items: "{{ api_domain_list }}"
-
     - name: Obtain certificates using Certbot with Nginx plugin for multiple domains in main face swapper next app
-      ansible.builtin.command: certbot --nginx -d {{ item.item.domain }} --email {{ letsencrypt_email }} --agree-tos --non-interactive
-      with_items: "{{ cert_stat_main.results }}"
-      when: not item.stat.exists
+      ansible.builtin.command:
+        cmd: certbot --nginx -d {{ item.domain }} --email {{ letsencrypt_email }} --agree-tos --non-interactive
+        creates: /etc/letsencrypt/live/{{ item.domain }}/fullchain.pem
+      with_items: "{{ domain_list }}"
+      notify: reload nginx
 
     - name: Obtain certificates using Certbot with Nginx plugin for multiple domains in sidecar server python app
-      ansible.builtin.command: certbot --nginx -d {{ item.item.domain }} --email {{ letsencrypt_email }} --agree-tos --non-interactive
-      with_items: "{{ cert_stat_api.results }}"
-      when: not item.stat.exists
-
-    - name: Reload Nginx after obtaining certificates for main face swapper next app
-      ansible.builtin.systemd:
-        name: nginx
-        state: reloaded
-      become: true
-      with_items: "{{ cert_stat_main.results }}"
-      when: not item.stat.exists
-
-    - name: Reload Nginx after obtaining certificates for sidecar server python app
-      ansible.builtin.systemd:
-        name: nginx
-        state: reloaded
-      become: true
-      with_items: "{{ cert_stat_api.results }}"
-      when: not item.stat.exists
+      ansible.builtin.command:
+        cmd: certbot --nginx -d {{ item.domain }} --email {{ letsencrypt_email }} --agree-tos --non-interactive
+        creates: /etc/letsencrypt/live/{{ item.domain }}/fullchain.pem
+      with_items: "{{ api_domain_list }}"
+      notify: reload nginx
