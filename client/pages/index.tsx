@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import type { NextPage } from "next";
 import Head from "next/head";
+import Script from "next/script";
 import styles from "../styles/Home.module.css";
 import Dropzone from "dropzone";
 import Image from "next/image";
@@ -268,6 +269,15 @@ const Home: NextPage = () => {
           content="Matrix Milady - Swap faces with milady, remilio, radbro!"
         />
       </Head>
+      <Script id="google-tag-manager" strategy="afterInteractive">
+        {`
+          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+          })(window,document,'script','dataLayer','G-C5GF7QCHTV');
+        `}
+      </Script>
 
       <main className={styles.main}>
         {/* <ConnectButton label="Sign in" accountStatus="address" /> */}
