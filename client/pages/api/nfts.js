@@ -1,24 +1,23 @@
 import axios from 'axios';
 
 const chainId = 1;
-const fromBlock = 16026179;
-const toBlock = 16026190;
-const Auth = process.env.INFURA_API_KEY;
+
+const { INFURA_API_KEY, INFURA_SECRET_API_KEY } = process.env;
 
 export default async function handler(req, res) {
   try {
-    const { data } = await axios.get(`https://nft.api.infura.io/networks/${chainId}/nfts/transfers?fromBlock=${fromBlock}&toBlock=${toBlock}`, {
+    const walletAddress = req.query.wallet;
+    const { data } = await axios.get(`https://nft.api.infura.io/networks/${chainId}/accounts/${walletAddress}/assets/nfts`, {
       headers: {
-        Authorization: `Basic ${Auth}`,
+        Authorization: `Basic ${Buffer.from(`${INFURA_API_KEY}:${INFURA_SECRET_API_KEY}`).toString('base64')}`,
       },
     });
 
-    const walletAddress = req.query.wallet;
-    const nftsInWallet = data.transfers.filter(transfer => transfer.to === walletAddress);
+    // const nftsInWallet = data.transfers.filter(transfer => transfer.to === walletAddress);
 
-    res.status(200).json(nftsInWallet);
+    res.status(200).json(data);
   } catch (error) {
     console.error('Error fetching NFT transfers:', error);
-    res.status(500).json({ error: 'Failed to fetch NFT transfers' });
+    res.status(500).json({ error: 'Failed to fetch NFTs', message: error.message  });
   }
 }
