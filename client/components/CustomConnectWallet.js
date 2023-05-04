@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import React, { useState, useEffect, useCallback } from "react";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 const withWalletButtonContent = (Component) => {
   const WrappedComponent = ({ onWalletAddressChange, ...props }) => {
@@ -7,7 +7,7 @@ const withWalletButtonContent = (Component) => {
       (account) => {
         if (account && account.address) {
           onWalletAddressChange(account.address);
-          console.log('Connected wallet address:', account.address);
+          console.log("Connected wallet address:", account.address);
         }
       },
       [onWalletAddressChange]
@@ -21,10 +21,10 @@ const withWalletButtonContent = (Component) => {
       try {
         const connectedAccount = await props.openConnectModal();
         if (connectedAccount) {
-          console.log('Wallet address:', connectedAccount.address);
+          console.log("Wallet address:", connectedAccount.address);
         }
       } catch (error) {
-        console.error('Error connecting wallet:', error);
+        console.error("Error connecting wallet:", error);
       }
     };
 
@@ -36,7 +36,9 @@ const withWalletButtonContent = (Component) => {
       />
     );
   };
-  WrappedComponent.displayName = `withWalletButtonContent(${Component.displayName || Component.name || 'Component'})`;
+  WrappedComponent.displayName = `withWalletButtonContent(${
+    Component.displayName || Component.name || "Component"
+  })`;
   return WrappedComponent;
 };
 
@@ -49,25 +51,51 @@ const WalletButtonContent = withWalletButtonContent(
     mounted,
     handleSignInClick,
   }) => {
-    const ready = mounted && authenticationStatus !== 'loading';
+    const ready = mounted && authenticationStatus !== "loading";
     const connected =
       ready &&
       account &&
       chain &&
-      (!authenticationStatus || authenticationStatus === 'authenticated');
+      (!authenticationStatus || authenticationStatus === "authenticated");
 
     if (!connected) {
       return (
-        <button onClick={handleSignInClick} type="button" style={{ fontSize: '20px' }}>
+        <button
+          onClick={handleSignInClick}
+          type="button"
+          style={{
+            fontSize: "25px",
+            background: "linear-gradient(180deg, #383838 0%, #292929 100%)",
+            color: "#FFFFFF",
+            borderRadius: "5px",
+            padding: "10px 20px",
+            boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.25)",
+            border: "none",
+            outline: "none",
+          }}
+        >
           Sign in
         </button>
       );
     }
 
     return (
-      <button onClick={openAccountModal} type="button" style={{ fontSize: '20px' }}>
+      <button
+        onClick={openAccountModal}
+        type="button"
+        style={{
+          fontSize: "25px",
+          background: "linear-gradient(180deg, #383838 0%, #292929 100%)",
+          color: "#FFFFFF",
+          borderRadius: "5px",
+          padding: "10px 20px",
+          boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.25)",
+          border: "none",
+          outline: "none",
+        }}
+      >
         {account.displayName}
-        {account.displayBalance ? ` (${account.displayBalance})` : ''}
+        {account.displayBalance ? ` (${account.displayBalance})` : ""}
       </button>
     );
   }
@@ -76,7 +104,12 @@ const WalletButtonContent = withWalletButtonContent(
 export const CustomConnectWallet = ({ onWalletAddressChange }) => {
   return (
     <ConnectButton.Custom>
-      {(props) => <WalletButtonContent {...props} onWalletAddressChange={onWalletAddressChange} />}
+      {(props) => (
+        <WalletButtonContent
+          {...props}
+          onWalletAddressChange={onWalletAddressChange}
+        />
+      )}
     </ConnectButton.Custom>
   );
 };

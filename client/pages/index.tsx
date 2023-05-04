@@ -280,7 +280,7 @@ const Home: NextPage = () => {
         <br />
         <br />
 
-        <div>
+        {/* <div>
           {windowWidth && (
             <img
               src="https://i.imgur.com/3O9l9se.png"
@@ -293,7 +293,7 @@ const Home: NextPage = () => {
         <hr style={{ width: "100%" }} />
         <br />
         <br />
-        <br />
+        <br /> */}
 
         <div
           style={{
