@@ -30,8 +30,8 @@ job_events = {}
 job_files = {}
 
 
-pachd_address = "0.0.0.0:30650"
-client = python_pachyderm.Client.new_from_pachd_address(pachd_address)
+# pachd_address = "0.0.0.0:30650"
+# client = python_pachyderm.Client.new_from_pachd_address(pachd_address)
 # dblend_image = "laneone/distributedblender:v1.0.10"
 # Replace this with the path to your service account key file
 SERVICE_ACCOUNT_FILE = '../creds.json'
