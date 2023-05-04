@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  edith_install:
+  edith-install:
     runs-on: ubuntu-latest
 
     steps:
