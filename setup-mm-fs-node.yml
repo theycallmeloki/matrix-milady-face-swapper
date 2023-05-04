@@ -30,6 +30,8 @@
         python_packages:
           - quart
           - moment
+          - quart_cors
+          - python_pachyderm==6.0.0
 
     - name: Install Python packages using python3 -m pip
       ansible.builtin.command:
@@ -45,7 +47,7 @@
           while true; do
             sleep 2
             inotifywait -e modify,move,create,delete {{ ansible_env.HOME }}/interface/server.py
-            (ps aux | grep -v grep | grep 'python3 {{ ansible_env.HOME }}/interface/server.py' || (cd {{ ansible_env.HOME }}/interface && python3 server.py &))
+            (ps aux | grep -v grep | grep 'python3 {{ ansible_env.HOME }}/interface/server.py' || (cd {{ ansible_env.HOME }}/interface && PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python python3 server.py &))
           done
     
     - name: Add crontab entry to start server.py on reboot
