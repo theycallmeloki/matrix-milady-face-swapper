@@ -156,8 +156,8 @@
             creates: /etc/letsencrypt/live/{{ item.domain }}/fullchain.pem
           with_items: "{{ api_domain_list }}"
 
-        - name: Reload Nginx
-          ansible.builtin.systemd:
-            name: nginx
-            state: reloaded
-          become: true
+        # - name: Reload Nginx
+        #   ansible.builtin.systemd:
+        #     name: nginx
+        #     state: reloaded
+        #   become: true
