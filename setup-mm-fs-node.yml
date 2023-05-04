@@ -73,14 +73,14 @@
 
     - name: Find PM2 executable path
       ansible.builtin.command:
-        cmd: . ~/.bashrc && which pm2
+        cmd: source ~/.bashrc && which pm2
       register: pm2_path_output
       ignore_errors: yes
       become: yes
 
     - name: Ensure PM2 starts on system startup
       ansible.builtin.shell:
-        cmd: . ~/.bashrc && pm2 startup systemd
+        cmd: source ~/.bashrc && pm2 startup systemd
       register: pm2_startup_output
       when: pm2_path_output.rc == 0
       become: yes
