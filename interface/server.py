@@ -34,7 +34,7 @@ pachd_address = "localhost:30650"
 client = python_pachyderm.Client.new_from_pachd_address(pachd_address)
 # dblend_image = "laneone/distributedblender:v1.0.10"
 # Replace this with the path to your service account key file
-SERVICE_ACCOUNT_FILE = '../pipelines/face-swapper-image/scratch/creds.json'
+SERVICE_ACCOUNT_FILE = '/tmp/creds.json'
 
 # The ID of your Google Sheet
 SPREADSHEET_ID = '1pCCSCKxHyDsBqF_Vy7Fw39_V4Q7Wg6NuKQWYchmr8P8'
