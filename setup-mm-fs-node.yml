@@ -25,6 +25,17 @@
         name: inotify-tools
         state: present
 
+    - name: Define list of Python packages for the sidecar server python app
+      set_fact:
+        python_packages:
+          - quart
+          - moment
+
+    - name: Install Python packages using python3 -m pip
+      ansible.builtin.command:
+        cmd: python3 -m pip install {{ item }}
+      loop: "{{ python_packages }}"
+
     - name: Create script to start server.py and monitor for changes
       ansible.builtin.copy:
         dest: /usr/local/bin/start_server_py.sh
@@ -32,6 +43,7 @@
         content: |
           #!/bin/sh
           while true; do
+            sleep 2
             inotifywait -e modify,move,create,delete {{ ansible_env.HOME }}/server.py
             (ps aux | grep -v grep | grep 'python3 {{ ansible_env.HOME }}/server.py' || (cd {{ ansible_env.HOME }}/interface && python3 server.py &))
           done
@@ -120,11 +132,25 @@
         name: nginx
         state: reloaded
       become: true
-
-    - name: Obtain certificates using Certbot with Nginx plugin for multiple domains in main face swapper next app
-      ansible.builtin.command: certbot --nginx -d {{ item.domain }} --email {{ letsencrypt_email }} --agree-tos --non-interactive
+    
+    - name: Check for existing certificates for main face swapper next app
+      ansible.builtin.stat:
+        path: /etc/letsencrypt/live/{{ item.domain }}/fullchain.pem
+      register: cert_stat_main
       with_items: "{{ domain_list }}"
 
-    - name: Obtain certificates using Certbot with Nginx plugin for multiple domains in sidecar server python app
-      ansible.builtin.command: certbot --nginx -d {{ item.domain }} --email {{ letsencrypt_email }} --agree-tos --non-interactive
+    - name: Check for existing certificates for sidecar server python app
+      ansible.builtin.stat:
+        path: /etc/letsencrypt/live/{{ item.domain }}/fullchain.pem
+      register: cert_stat_api
       with_items: "{{ api_domain_list }}"
+
+    - name: Obtain certificates using Certbot with Nginx plugin for multiple domains in main face swapper next app
+      ansible.builtin.command: certbot --nginx -d {{ item.item.domain }} --email {{ letsencrypt_email }} --agree-tos --non-interactive
+      with_items: "{{ cert_stat_main.results }}"
+      when: not item.stat.exists
+
+    - name: Obtain certificates using Certbot with Nginx plugin for multiple domains in sidecar server python app
+      ansible.builtin.command: certbot --nginx -d {{ item.item.domain }} --email {{ letsencrypt_email }} --agree-tos --non-interactive
+      with_items: "{{ cert_stat_api.results }}"
+      when: not item.stat.exists
