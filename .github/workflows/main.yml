@@ -52,14 +52,14 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    # - name: Build and push Nutter Tools MM FS client
-    #   id: docker_build
-    #   uses: docker/build-push-action@v2
-    #   with:
-    #     context: ./client
-    #     file: ./client/Dockerfile
-    #     push: true
-    #     tags: laneone/edith-images:nutter_tools_mm_fs_latest
+    - name: Build and push Nutter Tools MM FS client
+      id: docker_build
+      uses: docker/build-push-action@v2
+      with:
+        context: ./client
+        file: ./client/Dockerfile
+        push: true
+        tags: laneone/edith-images:nutter_tools_mm_fs_latest
 
     - name: Execute SSH commands
       uses: appleboy/ssh-action@master

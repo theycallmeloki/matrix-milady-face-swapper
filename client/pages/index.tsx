@@ -248,7 +248,7 @@ const Home: NextPage = () => {
     <div className={styles.container}>
       <Head>
         <meta charSet="utf-8" />
-        <title>Nutter Tools</title>
+        <title>Matrix Milady - Nutter Tools</title>
         <link rel="canonical" href="https://matrixmilady.com" />
         <meta name="author" content="ogmilady" />
         <meta
@@ -265,7 +265,7 @@ const Home: NextPage = () => {
         />
         <meta
           name="og:title"
-          content="Nutter Tools - Swap faces with milady, remilio, radbro!"
+          content="Matrix Milady - Swap faces with milady, remilio, radbro!"
         />
       </Head>
 
@@ -400,7 +400,9 @@ const Home: NextPage = () => {
                   backgroundColor: "white",
                   marginTop: "50px",
                   borderRadius: "20px",
-                  padding: '20px', 
+                  padding: '20px',
+                  fontSize: '20px',
+                  color: 'black'
                 }}
               >
                 {isWaitingForDownload === true ? (
