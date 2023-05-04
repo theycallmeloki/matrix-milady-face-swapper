@@ -10,8 +10,8 @@ import { publicProvider } from 'wagmi/providers/public';
 const { chains, provider, webSocketProvider } = configureChains(
   [
     mainnet,
-    polygon,
-    optimism,
+    // polygon,
+    // optimism,
     arbitrum,
     ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [goerli] : []),
   ],
@@ -19,8 +19,8 @@ const { chains, provider, webSocketProvider } = configureChains(
 );
 
 const { connectors } = getDefaultWallets({
-  appName: 'RainbowKit App',
-  projectId: 'YOUR_PROJECT_ID',
+  appName: 'MatrixMilady',
+  projectId: 'b9a1f0f09280844e7ed11ea04df4e136',
   chains,
 });
 

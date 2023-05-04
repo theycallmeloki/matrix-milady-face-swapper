@@ -1,20 +1,16 @@
 import React, {
     useEffect,
     useState,
-    useCallback,
-    useReducer,
     useRef,
 } from 'react';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { ConnectButton, } from '@rainbow-me/rainbowkit';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
-import NavbarCustom from '../components/NavbarCustom';
-import HeroSection from '../components/HeroSection';
-import Footer from '../components/Footer';
 import Dropzone from 'dropzone';
 import Image from 'next/image';
-// import "dropzone/dist/min/dropzone.min.css";
+import WalletConnectProvider from '@walletconnect/web3-provider';
+import { ethers } from 'ethers';
 
 const Home: NextPage = () => {
     const widthDeterminer = (widthOfWindow: any) => {
@@ -46,11 +42,9 @@ const Home: NextPage = () => {
         }
     }, []);
 
-    const [downloadLink, setDownloadLink] = useState('');
     const [isWaitingForDownload, setIsWaitingForDownload] = useState(false);
     const [userDownloadLink, setUserDownloadLink] = useState('');
     const [userDownloadFilename, setUserDownloadFilename] = useState('');
-    const [dataUrl, setDataUrl] = useState('');
 
 
     const [miladys, setMiladys] = useState([]);
@@ -67,7 +61,7 @@ const Home: NextPage = () => {
         fetchData();
     }, []);
 
-    console.log(miladys);
+    // console.log(miladys);
 
     const [selectedIndex, setSelectedIndex] = useState(null);
 
@@ -96,6 +90,35 @@ const Home: NextPage = () => {
             return null;
         }
     }
+
+    const fetchNFTs = async (walletAddress: string) => {
+        try {
+          const response = await fetch(`/api/nfts?wallet=${walletAddress}`);
+          const data = await response.json();
+          console.log('NFTs in possession:', data);
+        } catch (error) {
+          console.error('Error fetching NFTs:', error);
+        }
+      };
+
+      const onConnect = async () => {
+        try {
+          const provider = new WalletConnectProvider({
+            rpc: { 1: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}` },
+          });
+    
+          await provider.enable();
+    
+          const web3Provider = new ethers.providers.Web3Provider(provider);
+          const signer = web3Provider.getSigner();
+          const address = await signer.getAddress();
+    
+          console.log('Connected wallet address:', address);
+          fetchNFTs(address);
+        } catch (error) {
+          console.error('Failed to connect wallet:', error);
+        }
+      };
 
 
     useEffect(() => {
@@ -239,7 +262,7 @@ const Home: NextPage = () => {
             </Head>
 
             <main className={styles.main}>
-                <ConnectButton />
+                <ConnectButton label="Sign in" accountStatus="address" />
                 <br />
                 <br />
                 <hr style={{ width: '100%' }} />
