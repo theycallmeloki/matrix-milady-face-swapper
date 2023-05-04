@@ -191,10 +191,14 @@ async def uploadImageOrVideo():
             jsonPipeline["transform"]["image"] = "laneone/edith-images:221df1ab01c548a29be649f0e92ea06c"
             jsonPipeline["transform"]["image_pull_secrets"] = ["laneonekey"]
 
-            with open("/tmp/pipeline.json", "w") as outfile:
-                json.dump(jsonPipeline, outfile)
+            # with open("/tmp/pipeline.json", "w") as outfile:
+            #     json.dump(jsonPipeline, outfile)
 
-            createPipeline = f"pachctl create pipeline -f /tmp/pipeline.json"
+            # createPipeline = f"pachctl create pipeline -f /tmp/pipeline.json"
+
+            # cmd = f"pachctl create pipeline -f - <<EOF\n{config_str}\nEOF"
+
+            createPipeline = f"pachctl create pipeline -f - <<EOF\n{json.dumps(jsonPipeline)}\nEOF"
             print("running: " + createPipeline)
             os.system(createPipeline)
 
