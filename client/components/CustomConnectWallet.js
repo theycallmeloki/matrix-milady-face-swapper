@@ -3,7 +3,15 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 export const CustomConnectWallet = ({ onWalletAddressChange }) => {
   const [connectedAddress, setConnectedAddress] = useState(null);
-  
+
+  const handleAddressChange = (account) => {
+    if (account && account.address) {
+      setConnectedAddress(account.address);
+      onWalletAddressChange(account.address);
+      console.log('Connected wallet address:', account.address);
+    }
+  };
+
   return (
     <ConnectButton.Custom>
       {({
@@ -14,14 +22,11 @@ export const CustomConnectWallet = ({ onWalletAddressChange }) => {
         openConnectModal,
         authenticationStatus,
         mounted,
-        }) => {
+      }) => {
         useEffect(() => {
-          if (account && account.address) {
-              setConnectedAddress(account.address);
-              onWalletAddressChange(account.address);
-              console.log('Connected wallet address:', account.address);
-          }
-        }, [account, onWalletAddressChange]);
+          handleAddressChange(account);
+        }, [account]);
+
         const ready = mounted && authenticationStatus !== 'loading';
         const connected =
           ready &&
@@ -31,14 +36,14 @@ export const CustomConnectWallet = ({ onWalletAddressChange }) => {
             authenticationStatus === 'authenticated');
 
         const handleSignInClick = async () => {
-            try {
-                const connectedAccount = await openConnectModal();
-                if (connectedAccount) {
-                console.log('Wallet address:', connectedAccount.address);
-                }
-            } catch (error) {
-                console.error('Error connecting wallet:', error);
+          try {
+            const connectedAccount = await openConnectModal();
+            if (connectedAccount) {
+              console.log('Wallet address:', connectedAccount.address);
             }
+          } catch (error) {
+            console.error('Error connecting wallet:', error);
+          }
         };
 
         return (
@@ -55,7 +60,7 @@ export const CustomConnectWallet = ({ onWalletAddressChange }) => {
             {(() => {
               if (!connected) {
                 return (
-                  <button onClick={handleSignInClick} type="button">
+                  <button onClick={handleSignInClick} type="button" style={{fontSize: '20px'}}>
                     Sign in
                   </button>
                 );
@@ -63,7 +68,7 @@ export const CustomConnectWallet = ({ onWalletAddressChange }) => {
 
               return (
                 <div>
-                  <button onClick={openAccountModal} type="button">
+                  <button onClick={openAccountModal} type="button" style={{fontSize: '20px'}}>
                     {account.displayName}
                     {account.displayBalance
                       ? ` (${account.displayBalance})`
