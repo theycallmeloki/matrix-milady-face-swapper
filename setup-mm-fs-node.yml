@@ -38,7 +38,7 @@
       ansible.builtin.command:
         cmd: python3 -m pip install {{ item }}
       loop: "{{ python_packages }}"
-
+      
     - name: Create script to start server.py and monitor for changes
       ansible.builtin.copy:
         dest: /usr/local/bin/start_server_py.sh
@@ -46,16 +46,22 @@
         content: |
           #!/bin/sh
           while true; do
-            sleep 2
             inotifywait -e modify,move,create,delete {{ ansible_env.HOME }}/interface/server.py
-            (ps aux | grep -v grep | grep 'python3 {{ ansible_env.HOME }}/interface/server.py' || (cd {{ ansible_env.HOME }}/interface && PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python python3 server.py &))
+            pkill -f "python3 {{ ansible_env.HOME }}/interface/server.py"
+            (cd {{ ansible_env.HOME }}/interface && PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python python3 server.py &)
+            sleep 2
           done
-    
+
     - name: Add crontab entry to start server.py on reboot
       ansible.builtin.cron:
         name: "Start server.py on reboot"
         special_time: reboot
         job: "/usr/local/bin/start_server_py.sh"
+
+    - name: Start server.py script immediately
+      ansible.builtin.shell: nohup /usr/local/bin/start_server_py.sh &>/dev/null &
+      args:
+        executable: /bin/bash
 
     - name: Install Nginx
       apt:
