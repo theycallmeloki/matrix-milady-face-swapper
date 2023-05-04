@@ -48,7 +48,7 @@
           while true; do
             inotifywait -e modify,move,create,delete {{ ansible_env.HOME }}/interface/server.py
             cd {{ ansible_env.HOME }}/interface && pkill -f "python3 server.py"
-            (cd {{ ansible_env.HOME }}/interface && PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python python3 server.py &)
+            (cd {{ ansible_env.HOME }}/interface && PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python python3 server.py > /tmp/actual_server_py.log &)
             sleep 2
           done
 
