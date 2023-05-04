@@ -32,6 +32,7 @@
           - moment
           - quart_cors
           - python_pachyderm==6.0.0
+          - googleapiclient
 
     - name: Install Python packages using python3 -m pip
       ansible.builtin.command:
