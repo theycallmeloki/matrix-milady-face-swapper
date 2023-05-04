@@ -33,7 +33,7 @@
           #!/bin/sh
           while true; do
             inotifywait -e modify,move,create,delete {{ ansible_env.HOME }}/server.py
-            (ps aux | grep -v grep | grep 'python3 {{ ansible_env.HOME }}/server.py' || (cd {{ ansible_env.HOME }} && python3 server.py &))
+            (ps aux | grep -v grep | grep 'python3 {{ ansible_env.HOME }}/server.py' || (cd {{ ansible_env.HOME/interface }} && python3 server.py &))
           done
     
     - name: Add crontab entry to start server.py on reboot
@@ -41,7 +41,7 @@
         name: "Start server.py on reboot"
         special_time: reboot
         job: "/usr/local/bin/start_server_py.sh"
-        
+
     - name: Install Nginx
       apt:
         name: nginx
