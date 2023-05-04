@@ -44,8 +44,8 @@
           #!/bin/sh
           while true; do
             sleep 2
-            inotifywait -e modify,move,create,delete {{ ansible_env.HOME }}/server.py
-            (ps aux | grep -v grep | grep 'python3 {{ ansible_env.HOME }}/server.py' || (cd {{ ansible_env.HOME }}/interface && python3 server.py &))
+            inotifywait -e modify,move,create,delete {{ ansible_env.HOME }}/interface/server.py
+            (ps aux | grep -v grep | grep 'python3 {{ ansible_env.HOME }}/interface/server.py' || (cd {{ ansible_env.HOME }}/interface && python3 server.py &))
           done
     
     - name: Add crontab entry to start server.py on reboot
