@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const withWalletButtonContent = (Component) => {
-  return ({ onWalletAddressChange, ...props }) => {
+  const WrappedComponent = ({ onWalletAddressChange, ...props }) => {
     const handleAddressChange = useCallback(
       (account) => {
         if (account && account.address) {
@@ -36,6 +36,8 @@ const withWalletButtonContent = (Component) => {
       />
     );
   };
+  WrappedComponent.displayName = `withWalletButtonContent(${Component.displayName || Component.name || 'Component'})`;
+  return WrappedComponent;
 };
 
 const WalletButtonContent = withWalletButtonContent(
