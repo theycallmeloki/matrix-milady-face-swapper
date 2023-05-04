@@ -72,7 +72,7 @@
         cmd: . ~/.bashrc && pm2 save
 
     - name: Find PM2 executable path
-      ansible.builtin.command:
+      ansible.builtin.shell:
         cmd: source ~/.bashrc && which pm2
       register: pm2_path_output
       ignore_errors: yes
