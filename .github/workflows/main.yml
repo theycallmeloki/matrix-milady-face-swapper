@@ -13,6 +13,30 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
+    - name: Upload setup-mm-fs-node.yml
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        password: ${{ secrets.SSH_PASSWORD }}
+        source: "setup-mm-fs-node.yml"
+        target: "/root"
+
+    - name: Run Ansible playbook
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        password: ${{ secrets.SSH_PASSWORD }}
+        script: |
+          # mkdir -p setup-node
+          # mv /root/setup-node.yml setup-node/
+          # cd setup-node
+          # sudo apt-get update
+          # sudo apt-get install -y python3 python3-pip
+          # sudo pip3 install ansible
+          ansible-playbook setup-mm-fs-node.yml -i "localhost," --extra-vars "ansible_user=${{ secrets.SSH_USERNAME }} letsencrypt_email=${{ secrets.NODE_ADMIN_EMAIL }}" --connection=local
+
     - name: Set up Docker
       uses: docker/setup-buildx-action@v1
 
@@ -30,7 +54,7 @@ jobs:
         file: ./client/Dockerfile
         push: true
         tags: laneone/edith-images:nutter_tools_mm_fs_latest
-        
+
     - name: Execute SSH commands
       uses: appleboy/ssh-action@master
       with:

@@ -75,19 +75,19 @@ async def get_sheet_data_json():
     json_data = sheet_data_to_json(sheet_data)
     return json.dumps(json_data)
 
-@app.route('/download/<job_id>', methods=['GET'])
-async def download_processed_file(job_id):
-    file_path = job_files.get(job_id)
-    if file_path is None:
-        return "File not found", 404
-    if not os.path.exists(file_path):
-        return "File not found", 404
+# @app.route('/download/<job_id>', methods=['GET'])
+# async def download_processed_file(job_id):
+#     file_path = job_files.get(job_id)
+#     if file_path is None:
+#         return "File not found", 404
+#     if not os.path.exists(file_path):
+#         return "File not found", 404
 
-    # Get the file name and extension
-    file_name = os.path.basename(file_path)
+#     # Get the file name and extension
+#     file_name = os.path.basename(file_path)
 
-    # Send the file as a response with the Content-Disposition header
-    return await send_file(file_path, attachment_filename=file_name, as_attachment=True)
+#     # Send the file as a response with the Content-Disposition header
+#     return await send_file(file_path, attachment_filename=file_name, as_attachment=True)
 
 @app.route("/uploadImageOrVideo", methods=["POST"])
 async def uploadImageOrVideo():
@@ -208,10 +208,10 @@ async def uploadSwappedImage():
         
         imgswap = prejobid + "-imgswap"
         processed = prejobid + "-img-prcsd"
-        # client.delete_repo(processed)
-        # client.delete_pipeline(processed)
+        client.delete_repo(processed)
+        client.delete_pipeline(processed)
 
-        # client.delete_repo(imgswap)
+        client.delete_repo(imgswap)
         print("Cleaned up job " + prejobid)
 
     # Set the event for this job, signaling that it's complete

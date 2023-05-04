@@ -1,0 +1,75 @@
+- name: Setup Node
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update packages
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install required packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+          - build-essential
+          - certbot
+          - python3-certbot-nginx
+        state: present
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Ensure Nginx is running and enabled on boot
+      systemd:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Define list of domains
+      set_fact:
+        domain_list:
+          - domain: 'nutter.tools'
+    
+    - name: Create Nginx server configuration for each domain
+      copy:
+        content: |
+          server {
+              listen 80;
+              listen [::]:80;
+
+              server_name {{ item.domain }};
+              location / {
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header Host $http_host;
+                  proxy_set_header X-NginX-Proxy true;
+
+                  proxy_pass http://127.0.0.1:3000;
+                  proxy_redirect off;
+              }
+          }
+        dest: /etc/nginx/sites-enabled/{{ item.domain }}
+        owner: root
+        group: root
+        mode: 0644
+      with_items: "{{ domain_list }}"
+
+    - name: Reload systemd daemon
+      ansible.builtin.systemd:
+        daemon_reload: yes
+
+    - name: Reload Nginx
+      ansible.builtin.systemd:
+        name: nginx
+        state: reloaded
+      become: true
+
+    - name: Obtain certificates using Certbot with Nginx plugin for multiple domains
+      ansible.builtin.command: certbot --nginx -d {{ item.domain }} --email {{ letsencrypt_email }} --agree-tos --non-interactive
+      with_items: "{{ domain_list }}"
