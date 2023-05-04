@@ -146,7 +146,7 @@ const Home: NextPage = () => {
         try {
           setIsWaitingForDownload(true);
           const response = await fetch(
-            "http://192.168.0.221:5000/uploadImageOrVideo",
+            "https://api.nutter.tools/uploadImageOrVideo",
             {
               method: "POST",
               body: formData,
