@@ -40,7 +40,7 @@ SERVICE_ACCOUNT_FILE = '../creds.json'
 SPREADSHEET_ID = '1pCCSCKxHyDsBqF_Vy7Fw39_V4Q7Wg6NuKQWYchmr8P8'
 
 # The range of data you want to access (e.g., 'Sheet1!A1:Z100')
-RANGE_NAME = 'Reference!A1:Z100'
+RANGE_NAME = 'Reference!A1:Z200'
 
 # Load the service account credentials
 credentials = service_account.Credentials.from_service_account_file(
