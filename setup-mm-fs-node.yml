@@ -39,12 +39,6 @@
         cmd: python3 -m pip install {{ item }}
       loop: "{{ python_packages }}"
 
-    - name: Install PM2
-      npm:
-        name: pm2
-        global: yes
-        state: present
-
     - name: Create PM2 process configuration file for server.py
       ansible.builtin.copy:
         dest: "{{ ansible_env.HOME }}/interface/server_pm2_config.json"
