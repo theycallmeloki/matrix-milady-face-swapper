@@ -393,7 +393,7 @@ const Home: NextPage = () => {
             ></form>
 
             <br />
-            {userDownloadLink && (
+            {(userDownloadLink || isWaitingForDownload) && (
               <div
                 style={{
                   textAlign: "center",
