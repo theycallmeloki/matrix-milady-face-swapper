@@ -38,7 +38,7 @@
       ansible.builtin.command:
         cmd: python3 -m pip install {{ item }}
       loop: "{{ python_packages }}"
-      
+
     - name: Create script to start server.py and monitor for changes
       ansible.builtin.copy:
         dest: /usr/local/bin/start_server_py.sh
@@ -161,5 +161,21 @@
 
     - name: Obtain certificates using Certbot with Nginx plugin for multiple domains in sidecar server python app
       ansible.builtin.command: certbot --nginx -d {{ item.item.domain }} --email {{ letsencrypt_email }} --agree-tos --non-interactive
+      with_items: "{{ cert_stat_api.results }}"
+      when: not item.stat.exists
+
+    - name: Reload Nginx after obtaining certificates for main face swapper next app
+      ansible.builtin.systemd:
+        name: nginx
+        state: reloaded
+      become: true
+      with_items: "{{ cert_stat_main.results }}"
+      when: not item.stat.exists
+
+    - name: Reload Nginx after obtaining certificates for sidecar server python app
+      ansible.builtin.systemd:
+        name: nginx
+        state: reloaded
+      become: true
       with_items: "{{ cert_stat_api.results }}"
       when: not item.stat.exists
