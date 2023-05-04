@@ -278,6 +278,22 @@ const Home: NextPage = () => {
           })(window,document,'script','dataLayer','G-C5GF7QCHTV');
         `}
       </Script>
+      <Script
+        id="google-tag-gtag"
+        src="https://www.googletagmanager.com/gtag/js?id=G-C5GF7QCHTV"
+        strategy="afterInteractive"
+        async
+      />
+
+      <Script id="google-tag-init" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-C5GF7QCHTV');
+        `}
+      </Script>
 
       <main className={styles.main}>
         {/* <ConnectButton label="Sign in" accountStatus="address" /> */}
