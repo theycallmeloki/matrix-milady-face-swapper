@@ -146,7 +146,7 @@ const Home: NextPage = () => {
         try {
           setIsWaitingForDownload(true);
           const response = await fetch(
-            "https://api.nutter.tools/uploadImageOrVideo",
+            "https://api.matrixmilady.com/uploadImageOrVideo",
             {
               method: "POST",
               body: formData,
@@ -249,7 +249,7 @@ const Home: NextPage = () => {
       <Head>
         <meta charSet="utf-8" />
         <title>Nutter Tools</title>
-        <link rel="canonical" href="https://nutter.tools" />
+        <link rel="canonical" href="https://matrixmilady.com" />
         <meta name="author" content="ogmilady" />
         <meta
           name="keywords"

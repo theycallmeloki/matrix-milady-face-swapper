@@ -73,7 +73,7 @@
 
     - name: Find PM2 executable path
       ansible.builtin.command:
-        cmd: which pm2
+        cmd: . ~/.bashrc && which pm2
       register: pm2_path_output
       ignore_errors: yes
 
@@ -103,12 +103,12 @@
     - name: Define list of domains for main face swapper next app
       set_fact:
         domain_list:
-          - domain: 'nutter.tools'
+          - domain: 'matrixmilady.com'
             
     - name: Define list of domains for sidecar server python app
       set_fact:
         api_domain_list:
-          - domain: 'api.nutter.tools'
+          - domain: 'api.matrixmilady.com'
     
     - name: Create Nginx server configuration for each domain in main face swapper next app
       copy:

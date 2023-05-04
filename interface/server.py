@@ -155,7 +155,7 @@ async def uploadImageOrVideo():
             client.create_pipeline(
                 processed,
                 transform=python_pachyderm.Transform(
-                    cmd=["python3", "/face_swapper.py", f"{imgswap}", f"{selectedMilady}", "https://api.nutter.tools/uploadSwappedImage", f"{xScale}", f"{yScale}", f"{xLocation}", f"{yLocation}"],
+                    cmd=["python3", "/face_swapper.py", f"{imgswap}", f"{selectedMilady}", "https://api.matrixmilady.com/uploadSwappedImage", f"{xScale}", f"{yScale}", f"{xLocation}", f"{yLocation}"],
                     image="laneone/edith-images:221df1ab01c548a29be649f0e92ea06c",
                     image_pull_secrets=["laneonekey"],
                 ),
