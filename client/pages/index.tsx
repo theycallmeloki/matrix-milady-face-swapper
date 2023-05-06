@@ -199,7 +199,7 @@ const Home: NextPage = () => {
   };
 
   const [walletAddress, setWalletAddress] = useState(null);
-  const [userIsOg, setUserIsOg] = useState(false);
+  const [userIsOg, setUserIsOg] = useState(true);
 
   useEffect(() => {
     if (walletAddress) {
