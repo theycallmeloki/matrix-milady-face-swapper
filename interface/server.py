@@ -18,6 +18,7 @@ import json
 import mimetypes
 import threading
 import base64
+import csv
 
 
 app = Quart(__name__)
@@ -34,26 +35,46 @@ job_files = {}
 # client = python_pachyderm.Client.new_from_pachd_address(pachd_address)
 # dblend_image = "laneone/distributedblender:v1.0.10"
 # Replace this with the path to your service account key file
-SERVICE_ACCOUNT_FILE = '../creds.json'
+# SERVICE_ACCOUNT_FILE = '../creds.json'
 
 # The ID of your Google Sheet
-SPREADSHEET_ID = '1pCCSCKxHyDsBqF_Vy7Fw39_V4Q7Wg6NuKQWYchmr8P8'
+# SPREADSHEET_ID = '1pCCSCKxHyDsBqF_Vy7Fw39_V4Q7Wg6NuKQWYchmr8P8'
 
 # The range of data you want to access (e.g., 'Sheet1!A1:Z100')
-RANGE_NAME = 'Reference!A1:Z200'
+# RANGE_NAME = 'Reference!A1:Z200'
 
 # Load the service account credentials
-credentials = service_account.Credentials.from_service_account_file(
-    SERVICE_ACCOUNT_FILE, scopes=['https://www.googleapis.com/auth/spreadsheets'])
+# credentials = service_account.Credentials.from_service_account_file(
+    # SERVICE_ACCOUNT_FILE, scopes=['https://www.googleapis.com/auth/spreadsheets'])
 
-sheets_api = build('sheets', 'v4', credentials=credentials)
+# sheets_api = build('sheets', 'v4', credentials=credentials)
 
 
-def get_sheet_data(spreadsheet_id, range_name):
+def get_sheet_data():
     try:
-        result = sheets_api.spreadsheets().values().get(
-            spreadsheetId=spreadsheet_id, range=range_name).execute()
-        rows = result.get('values', [])
+        rows = []
+        # read from mmr.csv locally
+        with open('mmr.csv', newline='') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+            for row in reader:
+                oneRow = {}
+                oneRow["url"] = row[1]
+                oneRow["xScale"] = "2.5"
+                oneRow["yScale"] = "2.5"
+                oneRow["xLocation"] = "20"
+                oneRow["yLocation"] = "0"
+                oneRow["rotation"] = "0"
+                rows.append(oneRow)
+
+        # result = sheets_api.spreadsheets().values().get(
+        #     spreadsheetId=spreadsheet_id, range=range_name).execute()
+        # rows = result.get('values', [])
+
+        # Write the rows back to mmr2.csv
+        with open('mmr2.csv', 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter=',')
+            for row in rows:
+                writer.writerow([row["url"], row["xScale"], row["yScale"], row["xLocation"], row["yLocation"], row["rotation"]])
         return rows
     except HttpError as error:
         print(f"An error occurred: {error}")
@@ -71,9 +92,8 @@ def sheet_data_to_json(sheet_data):
 
 @app.route('/sheet-data', methods=['GET'])
 async def get_sheet_data_json():
-    sheet_data = get_sheet_data(SPREADSHEET_ID, RANGE_NAME)
-    json_data = sheet_data_to_json(sheet_data)
-    return json.dumps(json_data)
+    sheet_data = get_sheet_data()
+    return json.dumps(sheet_data)
 
 # @app.route('/download/<job_id>', methods=['GET'])
 # async def download_processed_file(job_id):
