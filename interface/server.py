@@ -54,7 +54,7 @@ def get_sheet_data():
     try:
         rows = []
         # read from mmr.csv locally, along with headers
-        with open('mmr2.csv', newline='') as csvfile:
+        with open('mmr.csv', newline='') as csvfile:
             reader = csv.reader(csvfile, delimiter=',')
             for row in reader:
                 oneRow = {}
