@@ -53,28 +53,19 @@ job_files = {}
 def get_sheet_data():
     try:
         rows = []
-        # read from mmr.csv locally
-        with open('mmr.csv', newline='') as csvfile:
+        # read from mmr.csv locally, along with headers
+        with open('mmr2.csv', newline='') as csvfile:
             reader = csv.reader(csvfile, delimiter=',')
             for row in reader:
                 oneRow = {}
-                oneRow["url"] = row[1]
-                oneRow["xScale"] = "2.5"
-                oneRow["yScale"] = "2.5"
-                oneRow["xLocation"] = "20"
-                oneRow["yLocation"] = "0"
-                oneRow["rotation"] = "0"
+                oneRow["url"] = row[0]
+                oneRow["xScale"] = row[1]
+                oneRow["yScale"] = row[2]
+                oneRow["xLocation"] = row[3]
+                oneRow["yLocation"] = row[4]
+                oneRow["rotation"] = row[5]
                 rows.append(oneRow)
 
-        # result = sheets_api.spreadsheets().values().get(
-        #     spreadsheetId=spreadsheet_id, range=range_name).execute()
-        # rows = result.get('values', [])
-
-        # Write the rows back to mmr2.csv
-        with open('mmr2.csv', 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile, delimiter=',')
-            for row in rows:
-                writer.writerow([row["url"], row["xScale"], row["yScale"], row["xLocation"], row["yLocation"], row["rotation"]])
         return rows
     except HttpError as error:
         print(f"An error occurred: {error}")
