@@ -39,37 +39,37 @@
         cmd: python3 -m pip install {{ item }}
       loop: "{{ python_packages }}"
 
-    - name: Create PM2 process configuration file for server.py
-      ansible.builtin.copy:
-        dest: "{{ ansible_env.HOME }}/interface/server_pm2_config.json"
-        content: |
-          {
-            "apps": [
-              {
-                "name": "server.py",
-                "script": "server.py",
-                "cwd": "{{ ansible_env.HOME }}/interface",
-                "interpreter": "python3",
-                "env": {
-                  "PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION": "python"
-                },
-                "watch": true,
-                "watch_options": {
-                  "usePolling": true
-                }
-              }
-            ]
-          }
+    #- name: Create PM2 process configuration file for server.py
+    #  ansible.builtin.copy:
+    #    dest: "{{ ansible_env.HOME }}/interface/server_pm2_config.json"
+    #    content: |
+    #      {
+    #        "apps": [
+    #          {
+    #            "name": "server.py",
+    #            "script": "server.py",
+    #            "cwd": "{{ ansible_env.HOME }}/interface",
+    #            "interpreter": "python3",
+    #            "env": {
+    #              "PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION": "python"
+    #            },
+    #            "watch": true,
+    #            "watch_options": {
+    #              "usePolling": true
+    #            }
+    #          }
+    #        ]
+    #      }
 
-    - name: Ensure server.py is started and managed by PM2
-      ansible.builtin.shell:
-        cmd: . ~/.bashrc && pm2 start {{ ansible_env.HOME }}/interface/server_pm2_config.json
-      args:
-        chdir: "{{ ansible_env.HOME }}/interface"
+    #- name: Ensure server.py is started and managed by PM2
+    #  ansible.builtin.shell:
+    #    cmd: . ~/.bashrc && pm2 start {{ ansible_env.HOME }}/interface/server_pm2_config.json
+    #  args:
+    #    chdir: "{{ ansible_env.HOME }}/interface"
 
-    - name: Save PM2 process list
-      ansible.builtin.shell:
-        cmd: . ~/.bashrc && pm2 save
+    #- name: Save PM2 process list
+    #  ansible.builtin.shell:
+    #    cmd: . ~/.bashrc && pm2 save
 
     - name: Install Nginx
       apt:

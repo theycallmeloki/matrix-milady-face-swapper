@@ -59,10 +59,10 @@ def get_sheet_data():
             for row in reader:
                 oneRow = {}
                 oneRow["url"] = row[0]
-                oneRow["xScale"] = row[1]
-                oneRow["yScale"] = row[2]
-                oneRow["xLocation"] = row[3]
-                oneRow["yLocation"] = row[4]
+                oneRow["x_scale"] = row[1]
+                oneRow["y_scale"] = row[2]
+                oneRow["x_location"] = row[3]
+                oneRow["y_location"] = row[4]
                 oneRow["rotation"] = row[5]
                 rows.append(oneRow)
 
@@ -113,6 +113,10 @@ async def uploadImageOrVideo():
         print("Selected Milady:", selectedMilady)
         print("Field name: " + field_name)
         print("File name: " + file_storage.filename)
+        print("X-Scale: " + xScale)
+        print("Y-Scale: " + yScale)
+        print("xLocation: " + xLocation)
+        print("yLocation: " + yLocation)
         content_type = file_storage.content_type
 
         if content_type is None:

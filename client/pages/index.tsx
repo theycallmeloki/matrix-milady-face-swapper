@@ -50,6 +50,7 @@ const Home: NextPage = () => {
     const fetchData = async () => {
       const response = await fetch("/api/sheets");
       const data = await response.json();
+      console.log(data);
       setMiladys(data);
     };
 
@@ -59,32 +60,14 @@ const Home: NextPage = () => {
   // console.log(miladys);
 
   const [selectedIndex, setSelectedIndex] = useState(null);
+  const [selectedMiladyUrl, setSelectedMiladyUrl] = useState(null);
+  const [selectedMiladyXScale, setSelectedMiladyXScale] = useState(null);
+  const [selectedMiladyYScale, setSelectedMiladyYScale] = useState(null);
+  const [selectedMiladyXLocation, setSelectedMiladyXLocation] = useState(null);
+  const [selectedMiladyYLocation, setSelectedMiladyYLocation] = useState(null);
+  const [selectedMiladyRotation, setSelectedMiladyRotation] = useState(null);
 
   const dropzoneRef = useRef(null);
-
-  function findUrlData(url: any) {
-    const data = miladys.find((entry: any) => entry.url === url);
-
-    if (data) {
-      // @ts-ignore
-      const x_scale = data.x_scale || "3";
-      // @ts-ignore
-      const y_scale = data.y_scale || "3";
-      // @ts-ignore
-      const x_location = data.x_location || "-1";
-      // @ts-ignore
-      const y_location = data.y_location || "-1";
-
-      return {
-        x_scale,
-        y_scale,
-        x_location,
-        y_location,
-      };
-    } else {
-      return null;
-    }
-  }
 
   const fetchNFTs = async (walletAddress: string) => {
     try {
@@ -121,7 +104,7 @@ const Home: NextPage = () => {
           return;
         }
 
-        let selectedMiladyUrl: string = "";
+
         if (selectedIndex === null) {
           alert("Please select a milady before uploading a file.");
           return;
@@ -131,16 +114,18 @@ const Home: NextPage = () => {
           // console.log(findUrlData(selectedMiladyUrl));
         }
 
-        const miladyFitData: any = findUrlData(selectedMiladyUrl);
-        console.log("miladyFitData", miladyFitData);
+        // const miladyFitData: any = findUrlData(selectedMiladyUrl);
+        // console.log(miladyFitData);
+        // console.log("miladyFitData", miladyFitData);
 
         const formData = new FormData();
         formData.append("file", file);
         formData.append("selectedMilady", selectedMiladyUrl);
-        formData.append("xScale", miladyFitData.x_scale);
-        formData.append("yScale", miladyFitData.y_scale);
-        formData.append("xLocation", miladyFitData.x_location);
-        formData.append("yLocation", miladyFitData.y_location);
+        formData.append("xScale", selectedMiladyXScale);
+        formData.append("yScale", selectedMiladyYScale);
+        formData.append("xLocation", selectedMiladyXLocation);
+        formData.append("yLocation", selectedMiladyYLocation);
+        formData.append("rotation", selectedMiladyRotation);
 
         console.log(formData);
 
@@ -192,16 +177,15 @@ const Home: NextPage = () => {
     }
   }, [selectedIndex]);
 
-  const handleMiladyClick = (index: any, milady: any) => {
-    setSelectedIndex(index);
-    console.log("Selected milady:", milady);
-    console.log("Selected index:", selectedIndex);
-  };
+  
 
   const [walletAddress, setWalletAddress] = useState(null);
   const [userIsOg, setUserIsOg] = useState(true);
 
   useEffect(() => {
+    
+    
+    
     if (walletAddress) {
       const fetchAndUpdateNFTs = async () => {
         const sourcedNFTs = await fetchNFTs(walletAddress);
@@ -236,8 +220,23 @@ const Home: NextPage = () => {
         });
       };
       fetchAndUpdateNFTs();
+      
+      // index stuff
+      console.log("Selected milady:", milady);
+      console.log("Selected index:", selectedIndex);
     }
-  }, [walletAddress]);
+  }, [walletAddress, selectedIndex]);
+  
+  const handleMiladyClick = (index: any, milady: any) => {
+      console.log('milady', milady)
+      setSelectedIndex(index);
+      setSelectedMiladyUrl(milady.url)
+      setSelectedMiladyXLocation(milady.x_location)
+      setSelectedMiladyYLocation(milady.y_location)
+      setSelectedMiladyXScale(milady.x_scale)
+      setSelectedMiladyYScale(milady.y_scale)
+      setSelectedMiladyRotation(milady.rotation)
+  };
 
   const handleWalletAddressChange = async (address: any) => {
     console.log("Parent received wallet address:", address);
@@ -382,6 +381,7 @@ const Home: NextPage = () => {
                   Array.isArray(miladys) &&
                   miladys.map((milady: any, index: any) => {
                     const isSelected = selectedIndex === index;
+                    console.log(isSelected);
                     return (
                       <div
                         key={milady.url}
