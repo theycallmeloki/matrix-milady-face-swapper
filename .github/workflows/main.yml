@@ -13,35 +13,35 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Upload setup-mm-fs-node.yml
-      uses: appleboy/scp-action@master
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USERNAME }}
-        password: ${{ secrets.SSH_PASSWORD }}
-        source: "setup-mm-fs-node.yml"
-        target: "/root"
+    # - name: Upload setup-mm-fs-node.yml
+    #   uses: appleboy/scp-action@master
+    #   with:
+    #     host: ${{ secrets.SSH_HOST }}
+    #     username: ${{ secrets.SSH_USERNAME }}
+    #     password: ${{ secrets.SSH_PASSWORD }}
+    #     source: "setup-mm-fs-node.yml"
+    #     target: "/root"
 
-    - name: Upload server.py
-      uses: appleboy/scp-action@master
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USERNAME }}
-        password: ${{ secrets.SSH_PASSWORD }}
-        source: "interface/server.py"
-        target: "/root"
+    # - name: Upload server.py
+    #   uses: appleboy/scp-action@master
+    #   with:
+    #     host: ${{ secrets.SSH_HOST }}
+    #     username: ${{ secrets.SSH_USERNAME }}
+    #     password: ${{ secrets.SSH_PASSWORD }}
+    #     source: "interface/server.py"
+    #     target: "/root"
     
-    - name: Apply SHEET_CREDS secret to creds.json
-      run: echo '${{ secrets.SHEET_CREDS }}' > creds.json
+    # - name: Apply SHEET_CREDS secret to creds.json
+    #   run: echo '${{ secrets.SHEET_CREDS }}' > creds.json
 
-    - name: Upload creds.json
-      uses: appleboy/scp-action@master
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USERNAME }}
-        password: ${{ secrets.SSH_PASSWORD }}
-        source: "creds.json"
-        target: "/root"
+    # - name: Upload creds.json
+    #   uses: appleboy/scp-action@master
+    #   with:
+    #     host: ${{ secrets.SSH_HOST }}
+    #     username: ${{ secrets.SSH_USERNAME }}
+    #     password: ${{ secrets.SSH_PASSWORD }}
+    #     source: "creds.json"
+    #     target: "/root"
 
     - name: Set up Docker
       uses: docker/setup-buildx-action@v1
