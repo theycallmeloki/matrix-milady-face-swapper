@@ -19,36 +19,107 @@ import mimetypes
 import threading
 import base64
 import csv
+import sqlite3
+from sqlite3 import Error
+from vowpalwabbit import pyvw
 
 
 app = Quart(__name__)
 app = cors(app, allow_origin="*")
 app.config["MAX_CONTENT_LENGTH"] = 100 * 1000 * 1000
 
-
 # Add this line to create a dictionary to store events for each job
 job_events = {}
 job_files = {}
 
+def format_vw_example(row):
+    image_id, prediction, feedback, _ = row
+    return f"{feedback} {image_id}| {prediction}"
 
-# pachd_address = "0.0.0.0:30650"
-# client = python_pachyderm.Client.new_from_pachd_address(pachd_address)
-# dblend_image = "laneone/distributedblender:v1.0.10"
-# Replace this with the path to your service account key file
-# SERVICE_ACCOUNT_FILE = '../creds.json'
+# Database setup
+def create_connection():
+    conn = None
+    db_file = 'mmr.db' # Modify this path to your database file
 
-# The ID of your Google Sheet
-# SPREADSHEET_ID = '1pCCSCKxHyDsBqF_Vy7Fw39_V4Q7Wg6NuKQWYchmr8P8'
+    try:
+        conn = sqlite3.connect(db_file)
+        if conn:
+            print(sqlite3.version)
+    except Error as e:
+        print(e)
+    return conn
 
-# The range of data you want to access (e.g., 'Sheet1!A1:Z100')
-# RANGE_NAME = 'Reference!A1:Z200'
+def create_table(conn):
+    try:
+        sql_create_table = """ CREATE TABLE IF NOT EXISTS predictions (
+                                            id integer PRIMARY KEY,
+                                            image_id text NOT NULL,
+                                            prediction text NOT NULL,
+                                            feedback text
+                                        ); """
+        if conn is not None:
+            c = conn.cursor()
+            c.execute(sql_create_table)
+    except Error as e:
+        print(e)
 
-# Load the service account credentials
-# credentials = service_account.Credentials.from_service_account_file(
-    # SERVICE_ACCOUNT_FILE, scopes=['https://www.googleapis.com/auth/spreadsheets'])
+def insert_prediction(conn, prediction):
+    sql = ''' INSERT INTO predictions(image_id,prediction)
+              VALUES(?,?) '''
+    cur = conn.cursor()
+    cur.execute(sql, prediction)
+    return cur.lastrowid
 
-# sheets_api = build('sheets', 'v4', credentials=credentials)
+def insert_feedback(conn, feedback):
+    sql = ''' UPDATE predictions
+              SET feedback = ?
+              WHERE image_id = ? '''
+    cur = conn.cursor()
+    cur.execute(sql, feedback)
+    conn.commit()
 
+# When you make a prediction
+def save_prediction(image_id, prediction):
+    database = create_connection()
+    create_table(database)
+    
+    prediction_tuple = (image_id, json.dumps(prediction))
+    insert_prediction(database, prediction_tuple)
+
+# When you receive feedback
+def save_feedback(image_id, feedback):
+    database = create_connection()
+
+    feedback_tuple = (feedback, image_id)
+    insert_feedback(database, feedback_tuple)
+
+def fetch_feedback(conn):
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM predictions WHERE feedback IS NOT NULL")
+
+    rows = cur.fetchall()
+
+    return rows
+
+def retrain_model():
+    database = create_connection()
+    feedback_rows = fetch_feedback(database)
+    
+    # Format the feedback and existing data in a way that VW can understand
+    # You need to convert feedback, action (prediction), and context (features) into VW format
+    formatted_data = [format_vw_example(row) for row in feedback_rows]
+    
+    # Add the new data to your existing data and retrain the model
+    vw = pyvw.vw("--cb 4")
+    for example in formatted_data:
+        vw.learn(example)
+    
+    # Save the new model
+    vw.save_model('new_model.vw')
+
+def load_model():
+    vw = pyvw.vw("--cb 4 -i new_model.vw")
+    return vw
 
 def get_sheet_data():
     try:
@@ -85,20 +156,6 @@ def sheet_data_to_json(sheet_data):
 async def get_sheet_data_json():
     sheet_data = get_sheet_data()
     return json.dumps(sheet_data)
-
-# @app.route('/download/<job_id>', methods=['GET'])
-# async def download_processed_file(job_id):
-#     file_path = job_files.get(job_id)
-#     if file_path is None:
-#         return "File not found", 404
-#     if not os.path.exists(file_path):
-#         return "File not found", 404
-
-#     # Get the file name and extension
-#     file_name = os.path.basename(file_path)
-
-#     # Send the file as a response with the Content-Disposition header
-#     return await send_file(file_path, attachment_filename=file_name, as_attachment=True)
 
 @app.route("/uploadImageOrVideo", methods=["POST"])
 async def uploadImageOrVideo():
@@ -151,28 +208,17 @@ async def uploadImageOrVideo():
 
             imgswap = new_job_id + "-imgswap"
 
-            # client.create_repo(imgswap)
             clientCreateRepo = f"pachctl create repo {imgswap}"
             print("running: " + clientCreateRepo)
             os.system(clientCreateRepo)
             
-
-            # with client.commit(imgswap, "master") as commit:
-            #     client.put_file_bytes(
-            #         commit,
-            #         "/" + new_job_id + '.' + ext,
-            #         open("/tmp/blends/" + new_job_id + '.' + ext, "rb"),
-            #     )
-            #     os.remove("/tmp/blends/" + new_job_id + '.' + ext)
 
             putFileRepo = f"pachctl put file {imgswap}@master:/{new_job_id}.{ext} -f /tmp/blends/{new_job_id}.{ext}"
             print("running: " + putFileRepo)
             os.system(putFileRepo)
             os.remove("/tmp/blends/" + new_job_id + '.' + ext)
 
-
             processed = new_job_id + "-img-prcsd"
-            # client.create_repo(processed)
             clientCreateRepo = f"pachctl create repo {processed}"
             print("running: " + clientCreateRepo)
             os.system(clientCreateRepo)
@@ -182,18 +228,6 @@ async def uploadImageOrVideo():
             print("xLocation: " + xLocation)
             print("yLocation: " + yLocation)
 
-            # client.create_pipeline(
-            #     processed,
-            #     transform=python_pachyderm.Transform(
-            #         cmd=["python3", "/face_swapper.py", f"{imgswap}", f"{selectedMilady}", "https://api.matrixmilady.com/uploadSwappedImage", f"{xScale}", f"{yScale}", f"{xLocation}", f"{yLocation}"],
-            #         image="laneone/edith-images:221df1ab01c548a29be649f0e92ea06c",
-            #         image_pull_secrets=["laneonekey"],
-            #     ),
-            #     input=python_pachyderm.Input(
-            #         pfs=python_pachyderm.PFSInput(glob="/*", repo=imgswap)
-            #     ),
-            # )
-
             jsonPipeline = {}
             jsonPipeline["pipeline"] = {}
             jsonPipeline["pipeline"]["name"] = processed
@@ -202,26 +236,16 @@ async def uploadImageOrVideo():
             jsonPipeline["input"]["pfs"]["glob"] = "/*"
             jsonPipeline["input"]["pfs"]["repo"] = imgswap
             jsonPipeline["transform"] = {}
-            jsonPipeline["transform"]["cmd"] = ["python3", "/face_swapper.py", f"{imgswap}", f"{selectedMilady}", "https://api.matrixmilady.com/uploadSwappedImage", f"{xScale}", f"{yScale}", f"{xLocation}", f"{yLocation}"]
+            jsonPipeline["transform"]["cmd"] = ["python3", "/face_swapper.py", f"{imgswap}", f"{selectedMilady}", "https://api.matrixmilady.com/uploadSwappedImage", f"{xScale}", f"{yScale}", f"{xLocation}", f"{yLocation}", f"{rotation}"]
             jsonPipeline["transform"]["image"] = "laneone/edith-images:221df1ab01c548a29be649f0e92ea06c"
             jsonPipeline["transform"]["image_pull_secrets"] = ["laneonekey"]
-
-            # with open("/tmp/pipeline.json", "w") as outfile:
-            #     json.dump(jsonPipeline, outfile)
-
-            # createPipeline = f"pachctl create pipeline -f /tmp/pipeline.json"
-
-            # cmd = f"pachctl create pipeline -f - <<EOF\n{config_str}\nEOF"
 
             createPipeline = f"pachctl create pipeline -f - <<EOF\n{json.dumps(jsonPipeline)}\nEOF"
             print("running: " + createPipeline)
             os.system(createPipeline)
 
-
-            # Create and store an event for this job
             job_events[new_job_id] = asyncio.Event()
 
-            # Store the file path for the processed image	
             job_files[new_job_id] = f"/tmp/swappedimage/{new_job_id}.jpg"
 
     # Wait for all events to be set
@@ -241,6 +265,9 @@ async def uploadImageOrVideo():
         with open(file_path, "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
             base64_encoded_images[job_id] = encoded_string
+
+    # Save the prediction when a prediction is made
+    save_prediction(new_job_id, prediction)
 
     return json.dumps(base64_encoded_images)
 
@@ -283,11 +310,4 @@ async def uploadSwappedImage():
 
     return "Ack! milady 🫡"
         
-async def display_job_files():
-    while True:
-        for job_id, file_path in job_files.items():
-            if os.path.exists(file_path):
-                print(f"File path for job {job_id}: {file_path}")
-        await asyncio.sleep(10)
-
-app.run(host="0.0.0.0", ssl_context=("adhoc"), background_tasks=[display_job_files()])
+app.run(host="0.0.0.0", ssl_context=("adhoc"))
