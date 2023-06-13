@@ -222,8 +222,8 @@ const Home: NextPage = () => {
       fetchAndUpdateNFTs();
       
       // index stuff
-      console.log("Selected milady:", milady);
-      console.log("Selected index:", selectedIndex);
+      // console.log("Selected milady:", milady);
+      // console.log("Selected index:", selectedIndex);
     }
   }, [walletAddress, selectedIndex]);
   
