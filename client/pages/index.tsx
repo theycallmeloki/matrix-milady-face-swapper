@@ -120,12 +120,12 @@ const Home: NextPage = () => {
 
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("selectedMilady", selectedMiladyUrl);
-        formData.append("xScale", selectedMiladyXScale);
-        formData.append("yScale", selectedMiladyYScale);
-        formData.append("xLocation", selectedMiladyXLocation);
-        formData.append("yLocation", selectedMiladyYLocation);
-        formData.append("rotation", selectedMiladyRotation);
+        formData.append("selectedMilady", String(selectedMiladyUrl));
+        formData.append("xScale", String(selectedMiladyXScale));
+        formData.append("yScale", String(selectedMiladyYScale));
+        formData.append("xLocation", String(selectedMiladyXLocation));
+        formData.append("yLocation", String(selectedMiladyYLocation));
+        formData.append("rotation", String(selectedMiladyRotation));
 
         console.log(formData);
 
