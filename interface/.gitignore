@@ -1,0 +1,4 @@
+__pycache__
+mmr.db
+shape_predictor_68_face_landmarks.dat
+test.jpg
