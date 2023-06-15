@@ -162,8 +162,10 @@ class FileProcessor:
             overlay_image = cv2.resize(overlay_image, None, fx=scaling_factor_x, fy=scaling_factor_y)
 
             # Ensure that xLocation and yLocation are within the bounds of the image
-            yLocation = int(y - overlay_image.shape[0]/2)
-            xLocation = int(x - overlay_image.shape[1]/2)
+            # Calculate offsets
+            yLocation = int(y + yLocation - overlay_image.shape[0]/2)
+            xLocation = int(x + xLocation - overlay_image.shape[1]/2)
+
 
             if yLocation < 0:
                 overlay_image = overlay_image[abs(yLocation):, :]

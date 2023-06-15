@@ -15,7 +15,7 @@ class TestApplicationFlow(unittest.TestCase):
                     'urlSourceOverlay': 'https://i.imgur.com/wZH4GjE.png',
                     'horizontalScale': '3.0',
                     'verticalScale': '3.0',
-                    'xLocation': '0',
+                    'xLocation': '50',
                     'yLocation': '0',
                     'rotation': '0'
                 }
