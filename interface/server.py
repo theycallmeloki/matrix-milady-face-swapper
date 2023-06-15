@@ -680,13 +680,15 @@ import dlib
 import imutils
 import numpy as np
 import requests
-from quart import Quart, request
+from quart import Quart, request, stream_with_context, Response
 from quart_cors import cors
 from vowpalwabbit import pyvw
 
 from db import DatabaseManager
 from ml import MLProcessor
 from fil import FileProcessor
+from ap import AdminProcessor
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -695,6 +697,8 @@ app = Quart(__name__)
 app = cors(app, allow_origin="*")
 app.config["MAX_CONTENT_LENGTH"] = 100 * 1000 * 1000
 
+admin_processor = AdminProcessor(app, 'client')
+admin_processor.setup_routes()
 db_manager = DatabaseManager()
 db_manager.initialize_db()
 ml_processor = MLProcessor(db_manager)
@@ -727,6 +731,15 @@ async def retrain():
 @app.route('/model', methods=['GET'])
 async def model():
     return await ml_processor.handle_model()
+
+@app.route('/stream')
+async def stream():
+    def event_stream():
+        while True:
+            feedback = db_manager.get_last_feedback()  # method that gets the last feedback entered
+            yield f"data:{json.dumps(feedback)}\n\n"
+            asyncio.sleep(1)  # sleep for a second before sending the next feedback
+    return Response(stream_with_context(event_stream()), mimetype="text/event-stream")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
