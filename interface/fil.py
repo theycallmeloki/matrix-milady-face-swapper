@@ -14,6 +14,8 @@ from concurrent.futures import ThreadPoolExecutor
 import asyncio
 # from anime_face_detector import create_detector
 import logging
+from quart import Quart, stream_with_context, Response
+import base64
 
 logger = logging.getLogger(__name__)
 
@@ -27,8 +29,9 @@ class SingletonPredictor:
         return cls._predictor_instance
 
 class FileProcessor:
-    def __init__(self, database_manager):
+    def __init__(self, database_manager, sse):
         self.db_manager = database_manager
+        self.sse_manager = sse
         self.job_events = {}
         self.job_files = {}
         self.human_detector = dlib.get_frontal_face_detector()
@@ -36,6 +39,11 @@ class FileProcessor:
         self.executor = ThreadPoolExecutor(max_workers=4)  
         # self.anime_detector = create_detector('yolov3')
 
+    async def send_image_to_stream(self, image_path):
+        with open(image_path, 'rb') as f:
+            img_data = base64.b64encode(f.read()).decode('utf-8')
+
+        self.sse_manager.put_nowait(f"data: {img_data}\n\n")
     
     async def process_files(self, request, url_source_overlay, horizontal_scale, vertical_scale, xLocation, yLocation, rotation):
         jobs = []
@@ -203,7 +211,6 @@ class FileProcessor:
         return image
 
 
-
     async def face_replace_pipeline(self, image_path, overlay_image_path, output_image_path, horizontal_scale, vertical_scale, xLocation, yLocation, rotation):
         # Load images
         image = self.load_image(image_path)
@@ -214,6 +221,10 @@ class FileProcessor:
 
         # Replace faces
         image = self.replace_faces(image, overlay_image, rects, horizontal_scale, vertical_scale, xLocation, yLocation, rotation)
+
+        # Send to SSE
+        # Start a background task to send the image to the stream
+        asyncio.ensure_future(self.send_image_to_stream(output_image_path))
 
         # Write output image
         cv2.imwrite(output_image_path, image)

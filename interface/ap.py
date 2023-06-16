@@ -12,6 +12,6 @@ class AdminProcessor:
         async def index_html():
             return await send_from_directory(self.base_dir, 'index.html')
 
-        @self.app.route('/style.css', methods=['GET'])
-        async def style_css():
-            return await send_from_directory(self.base_dir, 'style.css')
+        # @self.app.route('/style.css', methods=['GET'])
+        # async def style_css():
+        #     return await send_from_directory(self.base_dir, 'style.css')
