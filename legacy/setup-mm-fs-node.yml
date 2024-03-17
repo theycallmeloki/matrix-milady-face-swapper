@@ -1,0 +1,163 @@
+- name: Setup Node
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update packages
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install required packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+          - build-essential
+          - certbot
+          - python3-certbot-nginx
+        state: present
+
+    - name: Install inotify-tools package
+      ansible.builtin.package:
+        name: inotify-tools
+        state: present
+
+    - name: Define list of Python packages for the sidecar server python app
+      set_fact:
+        python_packages:
+          - quart
+          - moment
+          - quart_cors
+          - python_pachyderm==6.0.0
+          - google-api-python-client
+
+    - name: Install Python packages using python3 -m pip
+      ansible.builtin.command:
+        cmd: python3 -m pip install {{ item }}
+      loop: "{{ python_packages }}"
+
+    #- name: Create PM2 process configuration file for server.py
+    #  ansible.builtin.copy:
+    #    dest: "{{ ansible_env.HOME }}/interface/server_pm2_config.json"
+    #    content: |
+    #      {
+    #        "apps": [
+    #          {
+    #            "name": "server.py",
+    #            "script": "server.py",
+    #            "cwd": "{{ ansible_env.HOME }}/interface",
+    #            "interpreter": "python3",
+    #            "env": {
+    #              "PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION": "python"
+    #            },
+    #            "watch": true,
+    #            "watch_options": {
+    #              "usePolling": true
+    #            }
+    #          }
+    #        ]
+    #      }
+
+    #- name: Ensure server.py is started and managed by PM2
+    #  ansible.builtin.shell:
+    #    cmd: . ~/.bashrc && pm2 start {{ ansible_env.HOME }}/interface/server_pm2_config.json
+    #  args:
+    #    chdir: "{{ ansible_env.HOME }}/interface"
+
+    #- name: Save PM2 process list
+    #  ansible.builtin.shell:
+    #    cmd: . ~/.bashrc && pm2 save
+
+    # - name: Install Nginx
+    #   apt:
+    #     name: nginx
+    #     state: present
+
+    # - name: Ensure Nginx is running and enabled on boot
+    #   systemd:
+    #     name: nginx
+    #     state: started
+    #     enabled: yes
+
+    # - name: Define list of domains for main face swapper next app
+    #   set_fact:
+    #     domain_list:
+    #       - domain: 'matrixmilady.com'
+            
+    # - name: Define list of domains for sidecar server python app
+    #   set_fact:
+    #     api_domain_list:
+    #       - domain: 'api.matrixmilady.com'
+    
+    # - name: Create Nginx server configuration for each domain in main face swapper next app
+    #   copy:
+    #     content: |
+    #       server {
+    #           listen 80;
+    #           listen [::]:80;
+
+    #           server_name {{ item.domain }};
+    #           client_max_body_size 50m;
+    #           location / {
+    #               proxy_set_header X-Real-IP $remote_addr;
+    #               proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    #               proxy_set_header Host $http_host;
+    #               proxy_set_header X-NginX-Proxy true;
+
+    #               proxy_pass http://127.0.0.1:3000;
+    #               proxy_redirect off;
+    #           }
+    #       }
+    #     dest: /etc/nginx/sites-enabled/{{ item.domain }}
+    #     owner: root
+    #     group: root
+    #     mode: 0644
+    #   with_items: "{{ domain_list }}"
+
+    # - name: Create Nginx server configuration for each domain in sidecar server python app
+    #   copy:
+    #     content: |
+    #       server {
+    #           listen 80;
+    #           listen [::]:80;
+
+    #           server_name {{ item.domain }};
+    #           client_max_body_size 50m;
+    #           location / {
+    #               proxy_set_header X-Real-IP $remote_addr;
+    #               proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    #               proxy_set_header Host $http_host;
+    #               proxy_set_header X-NginX-Proxy true;
+
+    #               proxy_pass http://127.0.0.1:5000;
+    #               proxy_redirect off;
+    #           }
+    #       }
+    #     dest: /etc/nginx/sites-enabled/{{ item.domain }}
+    #     owner: root
+    #     group: root
+    #     mode: 0644
+    #   with_items: "{{ api_domain_list }}"
+
+    # - name: Reload systemd daemon
+    #   ansible.builtin.systemd:
+    #     daemon_reload: yes
+
+    # - name: Reload Nginx
+    #   ansible.builtin.systemd:
+    #     name: nginx
+    #     state: reloaded
+    #   become: true
+    
+    # - name: Obtain certificates using Certbot with Nginx plugin for multiple domains in main face swapper next app
+    #   ansible.builtin.command:
+    #     cmd: certbot --nginx -d {{ item.domain }} --email {{ letsencrypt_email }} --agree-tos --non-interactive
+    #   with_items: "{{ domain_list }}"
+
+    # - name: Obtain certificates using Certbot with Nginx plugin for multiple domains in sidecar server python app
+    #   ansible.builtin.command:
+    #     cmd: certbot --nginx -d {{ item.domain }} --email {{ letsencrypt_email }} --agree-tos --non-interactive
+    #   with_items: "{{ api_domain_list }}"

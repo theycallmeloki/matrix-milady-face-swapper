@@ -1,13 +1,14 @@
-Client:
-Drag drop face
-File gets uploaded
-Return job id
-Awaits server sent event 
+# [milady.ing](https://milady.ing)
 
+### Get milady [dataset](https://huggingface.co/datasets/hayden-donnelly/milady)
 
-Server:
-Get File
-Provisions job
-Returns job id to client
+``` 
+git clone git@hf.co:datasets/hayden-donnelly/milady
+```
 
-Sends sender sent event to client
+### Keep a runner ready ([MiladyOS](https://github.com/theycallmeloki/MiladyOS))
+
+```
+docker run -d --name miladyos --privileged --user root --restart=unless-stopped --net=host --env JENKINS_ADMIN_ID=admin --env JENKINS_ADMIN_PASSWORD=password -v /var/run/docker.sock:/var/run/docker.sock ogmiladyloki/miladyos
+```
+
