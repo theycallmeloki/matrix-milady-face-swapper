@@ -12,3 +12,6 @@ git clone git@hf.co:datasets/hayden-donnelly/milady
 docker run -d --name miladyos --privileged --user root --restart=unless-stopped --net=host --env JENKINS_ADMIN_ID=admin --env JENKINS_ADMIN_PASSWORD=password -v /var/run/docker.sock:/var/run/docker.sock ogmiladyloki/miladyos
 ```
 
+### TODO 
+
+###### [ ] Generate a seperate dreambooth model for the subject postfixed with a specific milady face
