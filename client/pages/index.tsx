@@ -99,7 +99,7 @@ const Home: NextPage = () => {
 
         if (!userIsOg) {
           alert(
-            "Sorry, only OGs can upload files. OGs are holders of Miladys, Remilios, Radbro Webring and Matrix Milady."
+            "Oonly OGs can upload files. OGs are holders of Miladys, Remilios, Radbro Webring and Matrix Milady."
           );
           return;
         }
@@ -248,8 +248,8 @@ const Home: NextPage = () => {
     <div className={styles.container}>
       <Head>
         <meta charSet="utf-8" />
-        <title>Matrix Milady - Nutter Tools</title>
-        <link rel="canonical" href="https://matrixmilady.com" />
+        <title>Miladying</title>
+        <link rel="canonical" href="https://milady.ing" />
         <meta name="author" content="ogmilady" />
         <meta
           name="keywords"
@@ -296,14 +296,10 @@ const Home: NextPage = () => {
 
       <main className={styles.main}>
         {/* <ConnectButton label="Sign in" accountStatus="address" /> */}
-        <CustomConnectWallet
+        {/* <CustomConnectWallet
           onWalletAddressChange={handleWalletAddressChange}
-        />
-        <br />
-        <br />
-        <hr style={{ width: "100%" }} />
-        <br />
-        <br />
+        /> */}
+       
 
         {/* <div>
           {windowWidth && (
@@ -325,23 +321,12 @@ const Home: NextPage = () => {
             backgroundColor: "black",
             color: "#0f0",
             width: "100%",
+            height: '90vh',
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
           }}
         >
-          <div style={{ paddingTop: "75px" }}>
-            {windowWidth && (
-              <img
-                src="https://i.imgur.com/OS4quT2.png"
-                style={{
-                  width: widthDeterminer(windowWidth / 2),
-                }}
-              />
-            )}
-          </div>
-
-          <br />
 
           <div
             style={{
@@ -352,23 +337,10 @@ const Home: NextPage = () => {
               backgroundPosition: "center",
             }}
           >
-            <div
-              style={{
-                backgroundColor: "white",
-                marginTop: "50px",
-                borderRadius: "20px",
-              }}
-            >
-              <div
-                style={{
-                  textAlign: "center",
-                  fontSize: "28px",
-                  marginTop: "10px",
-                }}
-              >
-                Select a milady/remilio/radbro!
+            <div>
+              <div style={{fontSize: '40px', textAlign: 'center', marginTop: '50px', marginBottom: '25px'}}>
+                MILADY
               </div>
-              <hr />
               <div
                 style={{
                   display: "flex",
@@ -415,6 +387,8 @@ const Home: NextPage = () => {
                 borderRadius: "10px",
                 marginTop: "50px",
                 padding: "20px",
+                width: '50vh',
+                height: '50vh'
               }}
             ></form>
 
@@ -462,33 +436,6 @@ const Home: NextPage = () => {
           </div>
         </div>
       </main>
-
-      <footer
-        style={{
-          textAlign: "center",
-          fontSize: "28px",
-          borderStyle: "solid",
-          padding: "10px",
-        }}
-      >
-        Made with ❤️ by your frens{" "}
-        <a
-          href="https://twitter.com/chillgates_"
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          @chillgates_
-        </a>{" "}
-        and{" "}
-        <a
-          href="https://twitter.com/SneckoAye"
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          @SneckoAye
-        </a>{" "}
-        🚀
-      </footer>
     </div>
   );
 };
