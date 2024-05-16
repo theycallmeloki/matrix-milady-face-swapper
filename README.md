@@ -1,4 +1,10 @@
-# Matrix Milady Face Swapper (now with batteries included)
+# Matrix Milady Face Swapper
+
+### Install
+
+`pip install -r requirements.txt`
+
+### Usage 
 
 Just run main.py, all the images in `images` folder are milady face replaced with any miladys in `overlays` folder and shipped to `output` folder 
 
